@@ -1,0 +1,124 @@
+@import "tailwindcss";
+@import "@ng-select/ng-select/themes/default.theme.css";
+@import "ngx-bootstrap/datepicker/bs-datepicker.css";
+
+@theme {
+    --font-sans: 'Inter', sans-serif;
+    --font-display: 'Outfit', sans-serif;
+
+    --color-primary-50: #ecfdf5;
+    --color-primary-100: #d1fae5;
+    --color-primary-500: #10b981;
+    --color-primary-600: #059669;
+    --color-primary-700: #047857;
+    --color-primary-800: #065f46;
+    --color-primary-900: #064e3b;
+
+    --color-slate-850: #1e293b;
+}
+
+@media print {
+
+    /* Reset background and text colors */
+    body,
+    html {
+        background-color: white !important;
+        color: black !important;
+        height: auto !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Hide Content Strategy: Use visibility to maintain DOM structure but hide visuals */
+    body * {
+        visibility: hidden !important;
+    }
+
+    /* Show Print Section Strategy: Make it and its children visible */
+    #print-section,
+    #print-section * {
+        visibility: visible !important;
+    }
+
+    /* Position the print section to takeover the page */
+    #print-section {
+        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        background-color: white !important;
+        z-index: 999999 !important;
+    }
+
+    /* Ensure no truncation happens due to overflow hiding on ancestors */
+    * {
+        overflow: visible !important;
+    }
+
+    /* Hide the no-print elements explicitly as a backup */
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* --- BS Datepicker Standard Compact Scaling --- */
+.theme-green .bs-datepicker-container,
+.theme-green .bs-datepicker-head,
+.theme-green .bs-datepicker-body {
+    background-color: #fff !important;
+    padding: 0 !important;
+}
+
+.theme-green .bs-datepicker-head {
+    background-color: #059669 !important;
+    padding: 10px !important;
+}
+
+.theme-green .bs-datepicker-body {
+    padding: 6px !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* Reduce the size of the date cells */
+.bs-datepicker-body table th,
+.bs-datepicker-body table td {
+    padding: 2px !important;
+    font-size: 11px !important;
+}
+
+.bs-datepicker-body table td span,
+.bs-datepicker-body table td.day span {
+    width: 28px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+    border-radius: 4px !important;
+}
+
+.theme-green .bs-datepicker-body table td span.selected,
+.theme-green .bs-datepicker-body table td.selected span,
+.theme-green .bs-datepicker-body table td span[class*="select-"]:after,
+.theme-green .bs-datepicker-body table td.active-highlight span {
+    background-color: #059669 !important;
+}
+
+/* Navigation Buttons Scaling */
+.bs-datepicker-head button {
+    padding: 2px 8px !important;
+    font-size: 12px !important;
+    height: auto !important;
+}
+
+.bs-datepicker-head .next,
+.bs-datepicker-head .previous {
+    padding: 0 10px !important;
+}
+
+/* Month/Year View Scaling */
+.bs-datepicker-body table.months td span,
+.bs-datepicker-body table.years td span {
+    width: 45px !important;
+    height: 35px !important;
+    line-height: 35px !important;
+    margin: 2px !important;
+}

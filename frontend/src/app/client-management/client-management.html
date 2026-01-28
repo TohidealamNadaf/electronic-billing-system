@@ -1,0 +1,315 @@
+<div class="max-w-6xl mx-auto animate-fade-in space-y-4">
+    <!-- Header -->
+    <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+        <div class="flex items-center gap-3">
+            <h2 class="text-xl font-display font-bold text-slate-900">Clients</h2>
+            <span
+                class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide border border-slate-200">
+                {{ searchTerm() ? filteredClients().length + ' / ' : '' }}{{ clients().length }} Records</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- List Section (Left) -->
+        <div
+            class="lg:col-span-2 bg-white rounded border border-slate-200 flex flex-col shadow-sm h-[calc(100vh-140px)]">
+            <div class="p-3 border-b border-slate-100 bg-slate-50/50 flex flex-wrap gap-3 justify-between items-center">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Client Directory</h3>
+
+                <div class="flex items-center gap-3">
+                    <!-- Search Bar -->
+                    <div class="relative group">
+                        <input type="text" [ngModel]="searchTerm()" (ngModelChange)="onSearch($event)"
+                            placeholder="Search Name, Email, Phone..."
+                            class="pl-8 pr-4 py-1.5 text-[11px] border border-slate-200 rounded text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 w-64 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor"
+                            class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 group-focus-within:text-primary-500 transition-colors">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </div>
+
+                    <div
+                        class="flex items-center gap-1.5 bg-slate-100 p-1 rounded border border-slate-200 shadow-inner">
+                        <button (click)="exportToCSV()" title="Export Excel (CSV)"
+                            class="text-[9px] font-bold text-emerald-700 bg-white hover:bg-emerald-50 px-2 py-1 rounded border border-slate-200 flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="w-2.5 h-2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            EXCEL
+                        </button>
+                        <button (click)="exportToPDF()" title="Export PDF"
+                            class="text-[9px] font-bold text-red-700 bg-white hover:bg-red-50 px-2 py-1 rounded border border-slate-200 flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="w-2.5 h-2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 6H12m0 0H8.25m11.25-3v14.25a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V4.875A2.25 2.25 0 0 1 4.875 2.625h9.75L19.5 7.125Z" />
+                            </svg>
+                            PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-slate-50 shadow-sm z-10">
+                        <tr
+                            class="border-b border-slate-200 text-[10px] uppercase text-slate-500 tracking-wider font-bold">
+                            <th class="px-4 py-2 w-1/4">Name</th>
+                            <th class="px-4 py-2 w-1/4">Contact</th>
+                            <th class="px-4 py-2 w-1/4">Address</th>
+                            <th class="px-4 py-2 w-20 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @for (client of filteredClients(); track client.id) {
+                        <tr class="group hover:bg-blue-50/30 transition-colors">
+                            <td class="px-4 py-2 align-top">
+                                <div class="text-sm font-semibold text-slate-900">{{ client.name }}</div>
+                                <div class="text-[10px] text-slate-400 font-mono mt-0.5">ID: #{{ client.id }}</div>
+                            </td>
+                            <td class="px-4 py-2 align-top">
+                                <div class="text-xs text-slate-600 flex items-center gap-1.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                        class="w-3 h-3 text-slate-400">
+                                        <path
+                                            d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.162V6a2 2 0 0 0-2-2H3Z" />
+                                        <path
+                                            d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z" />
+                                    </svg>
+                                    {{ client.email || '-' }}
+                                </div>
+                                <div class="text-xs text-slate-600 flex items-center gap-1.5 mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                        class="w-3 h-3 text-slate-400">
+                                        <path fill-rule="evenodd"
+                                            d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    {{ client.phone || '-' }}
+                                </div>
+
+                                <!-- Custom Fields Display -->
+                                @if (getParsedCustomFields(client.customFields).length > 0) {
+                                <div class="mt-2 space-y-1">
+                                    @for (cf of getParsedCustomFields(client.customFields); track cf.key) {
+                                    <div class="flex items-center gap-1.5 text-[10px]">
+                                        <span class="font-bold text-slate-400 uppercase">{{ cf.key }}:</span>
+                                        <span class="text-slate-600">{{ cf.value }}</span>
+                                    </div>
+                                    }
+                                </div>
+                                }
+                            </td>
+                            <td class="px-4 py-2 align-top">
+                                <div class="text-xs text-slate-500 truncate max-w-[120px]" title="{{ client.address }}">
+                                    {{ client.address || '-' }}
+                                </div>
+                            </td>
+                            <td class="px-4 py-2 text-center align-top">
+                                <div class="flex items-center justify-center gap-1">
+                                    <button (click)="startEdit(client)"
+                                        class="p-1 text-slate-400 hover:text-primary-600 transition-colors"
+                                        title="Edit Client">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.088a2.25 2.25 0 0 1-1.07.659l-2.459 1.04a.225.225 0 0 1-.299-.299l1.04-2.459a2.25 2.25 0 0 1 .659-1.07l10.582-10.582Z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 9l2.25 2.25" />
+                                        </svg>
+                                    </button>
+                                    <button (click)="deleteClient(client)"
+                                        class="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                                        title="Delete Client">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                        @if (filteredClients().length === 0) {
+                        <tr>
+                            <td colspan="4" class="px-6 py-12 text-center text-slate-400 text-xs italic">
+                                No clients found.
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Form (Right) -->
+        <div class="space-y-4">
+            <div class="bg-white rounded-lg border border-slate-200 shadow-sm sticky top-4 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-slate-50 to-slate-100 px-5 py-4 border-b border-slate-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-display font-bold text-base text-slate-900">
+                                {{ editMode() ? 'Edit Client' : 'Add New Client' }}
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">{{ editMode() ? 'Update client information' :
+                                'Create a new client record' }}</p>
+                        </div>
+                        @if (editMode()) {
+                        <button (click)="cancelEdit()" class="text-slate-400 hover:text-slate-600 transition-colors"
+                            title="Cancel">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Form Content -->
+                <div class="p-5 space-y-5">
+                    <!-- Basic Info -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-2">Client Name *</label>
+                        <input type="text" [(ngModel)]="newClient.name" placeholder="Enter full name"
+                            class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder:text-slate-400 text-slate-900">
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                class="w-4 h-4 text-slate-400">
+                                <path
+                                    d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.162V6a2 2 0 0 0-2-2H3Z" />
+                                <path
+                                    d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z" />
+                            </svg>
+                            <span class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Contact
+                                Details</span>
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-xs font-medium text-slate-600">Email Address</label>
+                                <label class="flex items-center gap-1.5 cursor-pointer">
+                                    <input type="checkbox" [(ngModel)]="standardFields.email"
+                                        class="w-3.5 h-3.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
+                                    <span class="text-[10px] text-slate-500 uppercase tracking-wide">Include</span>
+                                </label>
+                            </div>
+                            <input type="email" [(ngModel)]="newClient.email" placeholder="client@example.com"
+                                [disabled]="!standardFields.email"
+                                class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 disabled:opacity-40 disabled:bg-slate-50">
+                        </div>
+
+                        <!-- Phone -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-xs font-medium text-slate-600">Phone Number</label>
+                                <label class="flex items-center gap-1.5 cursor-pointer">
+                                    <input type="checkbox" [(ngModel)]="standardFields.phone"
+                                        class="w-3.5 h-3.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
+                                    <span class="text-[10px] text-slate-500 uppercase tracking-wide">Include</span>
+                                </label>
+                            </div>
+                            <input type="text" [(ngModel)]="newClient.phone" placeholder="+91 98765 43210"
+                                [disabled]="!standardFields.phone"
+                                class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 disabled:opacity-40 disabled:bg-slate-50">
+                        </div>
+
+                        <!-- Address -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-xs font-medium text-slate-600">Billing Address</label>
+                                <label class="flex items-center gap-1.5 cursor-pointer">
+                                    <input type="checkbox" [(ngModel)]="standardFields.address"
+                                        class="w-3.5 h-3.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
+                                    <span class="text-[10px] text-slate-500 uppercase tracking-wide">Include</span>
+                                </label>
+                            </div>
+                            <textarea [(ngModel)]="newClient.address" rows="2" placeholder="Enter billing address..."
+                                [disabled]="!standardFields.address"
+                                class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 disabled:opacity-40 disabled:bg-slate-50 resize-none"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Custom Fields -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                    class="w-4 h-4 text-slate-400">
+                                    <path fill-rule="evenodd"
+                                        d="M4.25 2A2.25 2.25 0 0 0 2 4.25v11.5A2.25 2.25 0 0 0 4.25 18h11.5A2.25 2.25 0 0 0 18 15.75V4.25A2.25 2.25 0 0 0 15.75 2H4.25Zm4.03 6.28a.75.75 0 0 0-1.06-1.06L4.97 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06L6.56 10l1.72-1.72Zm4.5-1.06a.75.75 0 1 0-1.06 1.06L13.44 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06l2.25-2.25a.75.75 0 0 0 0-1.06l-2.25-2.25Z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Custom
+                                    Fields</span>
+                            </div>
+                            <button (click)="addCustomField()"
+                                class="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1 px-2 py-1 rounded hover:bg-primary-50 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                    class="w-3.5 h-3.5">
+                                    <path
+                                        d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                                </svg>
+                                Add Field
+                            </button>
+                        </div>
+
+                        @if (customFields.length === 0) {
+                        <div class="text-center py-6 text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-8 h-8 mx-auto mb-2 opacity-50">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                            </svg>
+                            <p class="text-xs">No custom fields added</p>
+                        </div>
+                        }
+
+                        @for (field of customFields; track $index) {
+                        <div class="flex gap-2 items-center p-2 bg-slate-50 rounded-lg border border-slate-200">
+                            <input type="text" [(ngModel)]="field.key" placeholder="Field name (e.g., GST No.)"
+                                class="flex-1 px-2.5 py-1.5 bg-white border border-slate-300 rounded text-xs focus:ring-2 focus:ring-primary-500">
+                            <input type="text" [(ngModel)]="field.value" placeholder="Value"
+                                class="flex-1 px-2.5 py-1.5 bg-white border border-slate-300 rounded text-xs focus:ring-2 focus:ring-primary-500">
+                            <button (click)="removeCustomField($index)"
+                                class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                    class="w-4 h-4">
+                                    <path fill-rule="evenodd"
+                                        d="M8.75 1A2.75 2.75 0 0 0 6 3.75V4H3a.75.75 0 0 0 0 1.5h.253l.848 11.14c.112 1.488 1.353 2.66 2.843 2.66h6.112c1.49 0 2.731-1.172 2.843-2.66l.848-11.14H17a.75.75 0 0 0 0-1.5h-3v-.25A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 13a.75.75 0 0 0 .75-.75V7.75a.75.75 0 0 0-1.5 0v4.5c0 .414.336.75.75.75Zm2.75-.75a.75.75 0 0 1-1.5 0V7.75a.75.75 0 0 1 1.5 0v4.5ZM8 12.25A.75.75 0 0 0 8.75 13V7.75a.75.75 0 0 0-1.5 0v4.5Z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex gap-2">
+                    @if (editMode()) {
+                    <button (click)="cancelEdit()"
+                        class="flex-1 py-2.5 bg-white border border-slate-300 text-slate-700 text-xs font-semibold uppercase tracking-wide rounded-lg hover:bg-slate-50 transition-colors">
+                        Cancel
+                    </button>
+                    }
+                    <button (click)="addClient()" [class.flex-1]="editMode()" [class.w-full]="!editMode()"
+                        class="py-2.5 bg-slate-900 text-white text-xs font-semibold uppercase tracking-wide rounded-lg hover:bg-slate-800 transition-colors shadow-sm">
+                        {{ editMode() ? 'Save Changes' : 'Create Client' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

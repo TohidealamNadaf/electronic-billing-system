@@ -1,0 +1,318 @@
+<div class="max-w-6xl mx-auto animate-fade-in space-y-4">
+    <!-- Header -->
+    <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+        <div class="flex items-center gap-3">
+            <h2 class="text-xl font-display font-bold text-slate-900">Products</h2>
+            <span
+                class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide border border-slate-200">
+                {{ searchTerm() ? filteredProducts().length + ' / ' : '' }}{{ products().length }} Items</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- List Section (Left) -->
+        <div
+            class="lg:col-span-2 bg-white rounded border border-slate-200 flex flex-col shadow-sm h-[calc(100vh-140px)]">
+            <div class="p-3 border-b border-slate-100 bg-slate-50/50 flex flex-wrap gap-3 justify-between items-center">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Inventory</h3>
+
+                <div class="flex items-center gap-3">
+                    <!-- Search Bar -->
+                    <div class="relative group">
+                        <input type="text" [ngModel]="searchTerm()" (ngModelChange)="onSearch($event)"
+                            placeholder="Search Name or Description..."
+                            class="pl-8 pr-4 py-1.5 text-[11px] border border-slate-200 rounded text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 w-64 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor"
+                            class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 group-focus-within:text-primary-500 transition-colors">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </div>
+
+                    <div
+                        class="flex items-center gap-1.5 bg-slate-100 p-1 rounded border border-slate-200 shadow-inner">
+                        <button (click)="exportToCSV()" title="Export Excel (CSV)"
+                            class="text-[9px] font-bold text-emerald-700 bg-white hover:bg-emerald-50 px-2 py-1 rounded border border-slate-200 flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="w-2.5 h-2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            EXCEL
+                        </button>
+                        <button (click)="exportToPDF()" title="Export PDF"
+                            class="text-[9px] font-bold text-red-700 bg-white hover:bg-red-50 px-2 py-1 rounded border border-slate-200 flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="w-2.5 h-2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 6H12m0 0H8.25m11.25-3v14.25a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V4.875A2.25 2.25 0 0 1 4.875 2.625h9.75L19.5 7.125Z" />
+                            </svg>
+                            PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-slate-50 shadow-sm z-10">
+                        <tr
+                            class="border-b border-slate-200 text-[10px] uppercase text-slate-500 tracking-wider font-bold">
+                            <th class="px-4 py-2 w-1/2">Product Name</th>
+                            <th class="px-4 py-2 text-right w-24">Price</th>
+                            <th class="px-4 py-2 text-center w-24">Stock</th>
+                            <th class="px-4 py-2 text-center w-28">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @for (product of filteredProducts(); track product.id) {
+                        <tr class="group hover:bg-blue-50/30 transition-colors">
+                            <td class="px-4 py-2 align-middle">
+                                <div class="text-sm font-semibold text-slate-900">{{ product.name }}</div>
+                                <div class="text-[10px] text-slate-500 mt-0.5 truncate max-w-[200px]">{{
+                                    product.description || '-' }}</div>
+                            </td>
+                            <td class="px-4 py-2 text-right align-middle">
+                                <div class="text-sm font-bold text-slate-700 font-mono">₹{{ product.price |
+                                    number:'1.2-2' }}</div>
+                            </td>
+                            <td class="px-4 py-2 text-center align-middle">
+                                <span
+                                    class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border"
+                                    [class.bg-green-50]="product.stock > 10" [class.text-green-700]="product.stock > 10"
+                                    [class.border-green-200]="product.stock > 10"
+                                    [class.bg-yellow-50]="product.stock <= 10 && product.stock > 0"
+                                    [class.text-yellow-700]="product.stock <= 10 && product.stock > 0"
+                                    [class.border-yellow-200]="product.stock <= 10 && product.stock > 0"
+                                    [class.bg-red-50]="product.stock === 0" [class.text-red-700]="product.stock === 0"
+                                    [class.border-red-200]="product.stock === 0">
+                                    {{ product.stock }} Units
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-center align-middle">
+                                <div class="flex items-center justify-center gap-1">
+                                    <button (click)="openRestockModal(product)"
+                                        class="p-1 text-slate-400 hover:text-green-600 transition-colors"
+                                        title="Restock Product">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 4.5v15m7.5-7.5h-15" />
+                                        </svg>
+                                    </button>
+                                    <button (click)="openEditModal(product)"
+                                        class="p-1 text-slate-400 hover:text-blue-600 transition-colors"
+                                        title="Edit Product">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                        </svg>
+                                    </button>
+                                    <button (click)="deleteProduct(product)"
+                                        class="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                                        title="Delete Product">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                        @if (filteredProducts().length === 0) {
+                        <tr>
+                            <td colspan="4" class="px-6 py-12 text-center text-slate-400 text-xs italic">
+                                No products found.
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Form (Right) -->
+        <div class="space-y-4">
+            <div class="bg-white rounded-lg border border-slate-200 shadow-sm sticky top-4 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-slate-50 to-slate-100 px-5 py-4 border-b border-slate-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-display font-bold text-base text-slate-900">Add New Product</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Create a new product in inventory</p>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                            class="w-6 h-6 text-slate-300">
+                            <path fill-rule="evenodd"
+                                d="M6 5v1H4.667a1.75 1.75 0 0 0-1.743 1.598l-.826 9.5A1.75 1.75 0 0 0 3.84 19H16.16a1.75 1.75 0 0 0 1.743-1.902l-.826-9.5A1.75 1.75 0 0 0 15.333 6H14V5a4 4 0 0 0-8 0Zm4-2.5A2.5 2.5 0 0 0 7.5 5v1h5V5A2.5 2.5 0 0 0 10 2.5ZM7.5 10a2.5 2.5 0 0 0 5 0V8.75a.75.75 0 0 1 1.5 0V10a4 4 0 0 1-8 0V8.75a.75.75 0 0 1 1.5 0V10Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Form Content -->
+                <div class="p-5 space-y-5">
+                    <!-- Basic Information -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                class="w-4 h-4 text-slate-400">
+                                <path
+                                    d="M10.75 16.82A7.462 7.462 0 0 1 15 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0 0 18 15.06v-11a.75.75 0 0 0-.546-.721A9.006 9.006 0 0 0 15 3a8.963 8.963 0 0 0-4.25 1.065V16.82ZM9.25 4.065A8.963 8.963 0 0 0 5 3c-.85 0-1.673.118-2.454.339A.75.75 0 0 0 2 4.06v11a.75.75 0 0 0 .954.721A7.506 7.506 0 0 1 5 15.5c1.579 0 3.042.487 4.25 1.32V4.065Z" />
+                            </svg>
+                            <span class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Product
+                                Details</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-2">Product Name *</label>
+                            <input type="text" [(ngModel)]="newProduct.name" placeholder="Enter product name"
+                                class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder:text-slate-400 text-slate-900">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-2">Description</label>
+                            <input type="text" [(ngModel)]="newProduct.description"
+                                placeholder="Brief description (optional)"
+                                class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder:text-slate-400 text-slate-900">
+                        </div>
+                    </div>
+
+                    <!-- Pricing & Inventory -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                class="w-4 h-4 text-slate-400">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.798 7.45c.512-.67 1.135-.95 1.702-.95s1.19.28 1.702.95a.75.75 0 0 0 1.192-.91C12.637 5.55 11.596 5 10.5 5s-2.137.55-2.894 1.54A5.205 5.205 0 0 0 6.83 8H5.75a.75.75 0 0 0 0 1.5h.77a6.333 6.333 0 0 0 0 1h-.77a.75.75 0 0 0 0 1.5h1.08c.183.528.442 1.023.776 1.46.757.99 1.798 1.54 2.894 1.54s2.137-.55 2.894-1.54a.75.75 0 0 0-1.192-.91c-.512.67-1.135.95-1.702.95s-1.19-.28-1.702-.95a3.505 3.505 0 0 1-.343-.55h1.795a.75.75 0 0 0 0-1.5H8.026a4.835 4.835 0 0 1 0-1h2.224a.75.75 0 0 0 0-1.5H8.455c.098-.195.212-.38.343-.55Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Pricing &
+                                Stock</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-2">Unit Price *</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-slate-500 text-sm font-semibold">₹</span>
+                                    <input type="number" [(ngModel)]="newProduct.price" placeholder="0.00" min="0"
+                                        step="0.01"
+                                        class="w-full pl-7 pr-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder:text-slate-400 text-slate-900">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-2">Initial Stock</label>
+                                <div class="relative">
+                                    <input type="number" [(ngModel)]="newProduct.stock" placeholder="0" min="0"
+                                        class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 placeholder:text-slate-400 text-slate-900">
+                                    <span class="absolute right-3 top-2.5 text-slate-400 text-xs uppercase">Units</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="px-5 py-4 bg-slate-50 border-t border-slate-200">
+                    <button (click)="addProduct()"
+                        class="w-full py-2.5 bg-slate-900 text-white text-xs font-semibold uppercase tracking-wide rounded-lg hover:bg-slate-800 transition-colors shadow-sm">
+                        Add Product
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Restock Modal -->
+@if (restockModal().isOpen) {
+<div class="fixed inset-0 bg-slate-900/50 z-[200] flex items-center justify-center p-4 animate-fade-in backdrop-blur-sm"
+    (click)="closeRestockModal()">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden" (click)="$event.stopPropagation()">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+            <h3 class="font-display font-bold text-lg text-slate-900">Restock Product</h3>
+            <p class="text-xs text-slate-500 mt-1">Add inventory for {{ restockModal().product?.name }}</p>
+        </div>
+        <div class="p-6">
+            <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-slate-600">Current Stock:</span>
+                    <span class="text-lg font-bold text-slate-900">{{ restockModal().product?.stock }} Units</span>
+                </div>
+            </div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Quantity to Add</label>
+            <input type="number" [ngModel]="restockModal().quantity" (ngModelChange)="updateRestockQuantity($event)"
+                #restockQtyInput min="1" placeholder="Enter quantity"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-sm text-slate-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
+
+            @if (restockModal().quantity > 0) {
+            <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-green-700 font-medium">New Stock:</span>
+                    <span class="text-green-900 font-bold text-lg">{{ restockModal().product?.stock +
+                        restockModal().quantity }} Units</span>
+                </div>
+            </div>
+            }
+        </div>
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+            <button (click)="closeRestockModal()"
+                class="px-4 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wide rounded hover:bg-slate-50 transition-colors">
+                Cancel
+            </button>
+            <button (click)="confirmRestock()"
+                class="px-4 py-2 bg-green-600 text-white text-xs font-bold uppercase tracking-wide rounded hover:bg-green-700 transition-colors shadow-sm">
+                Confirm Restock
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Edit Modal -->
+@if (editModal().isOpen) {
+<div class="fixed inset-0 bg-slate-900/50 z-[200] flex items-center justify-center p-4 animate-fade-in backdrop-blur-sm"
+    (click)="closeEditModal()">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden" (click)="$event.stopPropagation()">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+            <h3 class="font-display font-bold text-lg text-slate-900">Edit Product</h3>
+            <p class="text-xs text-slate-500 mt-1">Modify details for {{ editModal().product?.name }}</p>
+        </div>
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Product Name</label>
+                <input type="text" [(ngModel)]="editForm.name" placeholder="Enter product name"
+                    class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-sm text-slate-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Description</label>
+                <input type="text" [(ngModel)]="editForm.description" placeholder="Brief description"
+                    class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-sm text-slate-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Unit Price</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-2 text-slate-500 text-sm font-semibold">₹</span>
+                    <input type="number" [(ngModel)]="editForm.price" placeholder="0.00" min="0.01" step="0.01"
+                        class="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-sm text-slate-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+                </div>
+            </div>
+        </div>
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+            <button (click)="closeEditModal()"
+                class="px-4 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wide rounded hover:bg-slate-50 transition-colors">
+                Cancel
+            </button>
+            <button (click)="confirmEdit()"
+                class="px-4 py-2 bg-primary-600 text-white text-xs font-bold uppercase tracking-wide rounded hover:bg-primary-700 transition-colors shadow-sm">
+                Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <script>
+    window.onerror = function (message, source, lineno, colno, error) {
+      alert('Global Error: ' + message + '\nSource: ' + source + ':' + lineno + '\nError: ' + error);
+    };
+    try {
+      // Enable Visual Zoom for Electron (Native Pinch-to-Zoom)
+      const { webFrame } = require('electron');
+      if (webFrame) {
+        webFrame.setVisualZoomLevelLimits(1, 4);
+      }
+    } catch (e) {
+      // Not in Electron or require failed
+    }
+  </script>
+  <meta charset="utf-8">
+  <title>Nadaf Furnitures</title>
+  <base href="/">
+  <!-- ALLOW USER SCALING FOR TOUCH GESTURES -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=4, user-scalable=yes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body>
+  <app-root></app-root>
+</body>
+
+</html>

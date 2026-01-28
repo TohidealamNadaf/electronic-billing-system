@@ -1,0 +1,13 @@
+{
+    "name": "billing-system-root",
+    "version": "1.0.1",
+    "private": true,
+    "scripts": {
+        "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ../electron && npm install",
+        "build:backend": "cd backend && npm run build",
+        "build:frontend": "cd frontend && npm run build",
+        "build:all": "npm run build:backend && npm run build:frontend",
+        "pack": "npm run build:all && cd electron && npm run dist",
+        "dist": "npm run build:all && cd electron && npm run dist"
+    }
+}

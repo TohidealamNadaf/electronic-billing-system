@@ -45,6 +45,43 @@ export class EstimateEntryPage implements OnInit {
 
     editEstimateId = signal<number | null>(null);
 
+    // View Signals
+    selectedEstimate = signal<any | null>(null);
+    viewMode = signal<'details' | 'pdf'>('details');
+
+    // Parsed columns for View
+    parsedCustomColumns = computed(() => {
+        const est = this.selectedEstimate();
+        if (!est) return this.customColumns();
+
+        const builtInDefaults = [
+            { id: 'product', isBuiltIn: true },
+            { id: 'quantity', isBuiltIn: true },
+            { id: 'price', isBuiltIn: true },
+            { id: 'total', isBuiltIn: true }
+        ];
+
+        if (!est.customColumns) return builtInDefaults;
+
+        try {
+            const parsed = typeof est.customColumns === 'string' ? JSON.parse(est.customColumns) : est.customColumns;
+            return [...builtInDefaults.slice(0, 3), ...parsed.map((c: any) => ({ ...c, isBuiltIn: false })), builtInDefaults[3]];
+        } catch (e) {
+            return builtInDefaults;
+        }
+    });
+
+    parsedColumnLabels = computed(() => {
+        const est = this.selectedEstimate();
+        const defaults = { product: 'Item', quantity: 'Qty', price: 'Price', total: 'Total' };
+        if (!est || !est.columnLabels) return defaults;
+        try {
+            return typeof est.columnLabels === 'string' ? JSON.parse(est.columnLabels) : est.columnLabels;
+        } catch (e) {
+            return defaults;
+        }
+    });
+
     // Custom Name Modal State
     editNameState = signal({ isOpen: false, index: -1, name: '' });
     @ViewChild('nameInput') nameInputRef!: ElementRef<HTMLInputElement>;
@@ -299,21 +336,38 @@ export class EstimateEntryPage implements OnInit {
 
         if (this.editEstimateId()) {
             this.api.updateEstimate(this.editEstimateId()!, estimateData).subscribe({
-                next: () => {
+                next: (res: any) => {
                     alert('Estimate updated successfully!');
-                    this.router.navigate(['/estimate-history']);
+                    this.viewEstimate(res);
                 },
                 error: (err) => alert('Error updating estimate: ' + err.message)
             });
         } else {
             this.api.createEstimate(estimateData).subscribe({
-                next: () => {
+                next: (res: any) => {
                     alert('Estimate created successfully!');
-                    this.router.navigate(['/estimate-history']);
+                    this.viewEstimate(res);
                 },
                 error: (err) => alert('Error creating estimate: ' + err.message)
             });
         }
+    }
+
+    viewEstimate(estimate: any) {
+        this.selectedEstimate.set(estimate);
+        this.viewMode.set('details');
+    }
+
+    closeView() {
+        this.selectedEstimate.set(null);
+    }
+
+    async openPdfPreview(estimate: any) {
+        const pdfData = {
+            ...estimate,
+            client: estimate.client || this.selectedClient() || { name: 'Client' }
+        };
+        await this.pdfService.generateEstimatePdf(pdfData, this.settings());
     }
 
     loadEstimateForEdit(estimate: any) {

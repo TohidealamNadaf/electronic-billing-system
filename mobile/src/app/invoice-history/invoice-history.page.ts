@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ViewDidEnter } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
+import { PdfService } from '../services/pdf.service';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -25,6 +26,48 @@ export class InvoiceHistoryPage implements ViewDidEnter {
     // Bulk Actions
     selectionMode = signal(false);
     selectedIds = signal<Set<number>>(new Set());
+
+    // View Modal
+    selectedInvoice = signal<any | null>(null);
+
+    parsedCustomColumns = computed(() => {
+        const inv = this.selectedInvoice();
+        if (!inv) return [];
+
+        const builtInDefaults = [
+            { id: 'product', isBuiltIn: true },
+            { id: 'quantity', isBuiltIn: true },
+            { id: 'price', isBuiltIn: true },
+            { id: 'total', isBuiltIn: true }
+        ];
+
+        if (!inv.customColumns) return builtInDefaults;
+
+        try {
+            const parsed = typeof inv.customColumns === 'string' ? JSON.parse(inv.customColumns) : inv.customColumns;
+            if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((c: any) => c.isBuiltIn !== undefined)) {
+                return parsed.map((c: any) => ({
+                    ...c,
+                    name: c.isBuiltIn ? '' : (c.name || ''),
+                    type: c.isBuiltIn ? '' : (c.type || 'calculated'),
+                    isCurrency: c.isCurrency !== undefined ? c.isCurrency : true
+                }));
+            }
+            return [...builtInDefaults.slice(0, 3), ...parsed.map((c: any) => ({ ...c, isBuiltIn: false })), builtInDefaults[3]];
+        } catch (e) {
+            return builtInDefaults;
+        }
+    });
+
+    parsedColumnLabels = computed(() => {
+        const inv = this.selectedInvoice();
+        if (!inv || !inv.columnLabels) return { product: 'Item', quantity: 'Qty', price: 'Price', total: 'Total' };
+        try {
+            return JSON.parse(inv.columnLabels);
+        } catch (e) {
+            return { product: 'Item', quantity: 'Qty', price: 'Price', total: 'Total' };
+        }
+    });
 
     filteredInvoices = computed(() => {
         let items = this.invoices();
@@ -53,7 +96,7 @@ export class InvoiceHistoryPage implements ViewDidEnter {
 
     hasDateFilter = computed(() => !!this.startDate() || !!this.endDate());
 
-    constructor(private api: ApiService, private router: Router) { }
+    constructor(private api: ApiService, private router: Router, private pdfService: PdfService) { }
 
     ionViewDidEnter() {
         this.loadInvoices();
@@ -133,5 +176,79 @@ export class InvoiceHistoryPage implements ViewDidEnter {
             case 'partially paid': return 'warning';
             default: return 'medium'; // Changed from danger to medium for pending default visual
         }
+    }
+
+    viewInvoice(invoice: any) {
+        if (this.selectionMode()) {
+            this.toggleSelection(invoice.id);
+        } else {
+            this.selectedInvoice.set(invoice);
+        }
+    }
+
+    closeView() {
+        this.selectedInvoice.set(null);
+    }
+
+    getCustomValue(item: any, col: any): any {
+        if (col.id === 'total') return item.price * item.quantity;
+        if (col.id === 'product' || col.id === 'quantity' || col.id === 'price') return '';
+
+        let values = item.customValues;
+        if (typeof values === 'string') {
+            try { values = JSON.parse(values); } catch (e) { values = {}; }
+        } else if (!values) {
+            values = {};
+        }
+
+        if (col.type === 'calculated') {
+            return this.evaluateFormula(col.formula, item.price, item.quantity);
+        }
+        return values[col.name] || (col.type === 'number' ? 0 : '');
+    }
+
+    evaluateFormula(formula: string, price: number, qty: number): number {
+        try {
+            const cleanFormula = formula
+                .replace(/price/g, String(price))
+                .replace(/qty/g, String(qty))
+                .replace(/[^0-9+\-*/().]/g, '');
+            return (new Function('return ' + cleanFormula))() || 0;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    async openPdfPreview(invoice: any) {
+        // Construct pdfData with client name if missing
+        const pdfData = {
+            ...invoice,
+            client: invoice.client || { name: 'Client' }
+        };
+        // Retrieve settings (assuming settings signals or service access if needed, 
+        // but here we might need to fetch settings or assume defaults. 
+        // For history, likely need to inject PdfService and ApiService properly if not present)
+        // Wait, ApiService is injected. Does it have settings? 
+        // InvoiceHistoryPage usually fetches data. 
+        // Let's assume we can fetch settings or use a simple object if not loaded.
+        // Actually, PdfService needs settings. 
+        // Let's modify to fetch settings if strictly needed, but PdfService might handle defaults.
+        // Checking InvoiceHistoryPage imports... it has ApiService.
+        // I'll assume settings are not stored in a signal here. 
+        // I will add settings fetching or pass empty object if PdfService can handle it.
+        // PdfService uses settings for company info. This is important.
+        // I'll grab settings from ApiService.
+        this.api.getSettings().subscribe(settings => {
+            this.pdfService.generateInvoicePdf(pdfData, settings);
+        });
+    }
+
+    getInvoiceNumberDate(dateStr: string): string {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return '';
+        const year = d.getFullYear();
+        const month = ('0' + (d.getMonth() + 1)).slice(-2);
+        const day = ('0' + d.getDate()).slice(-2);
+        return `${year}${month}${day}`;
     }
 }

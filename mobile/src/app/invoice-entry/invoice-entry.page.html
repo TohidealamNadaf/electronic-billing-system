@@ -3,20 +3,20 @@
         <ion-buttons slot="start">
             <ion-menu-button color="dark"></ion-menu-button>
         </ion-buttons>
-        <div class="flex items-center gap-2">
-            <ion-title class="font-display font-bold text-lg text-slate-900 px-0">Invoice</ion-title>
-            <span
-                class="px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 text-[10px] font-bold uppercase tracking-wider border border-primary-200">Draft</span>
+        <div class="flex items-center gap-1.5 overflow-hidden">
+            <ion-title class="font-display font-bold text-base text-slate-900 px-0 pl-2 shrink-0">Invoice</ion-title>
+            <span *ngIf="editInvoiceId()"
+                class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 text-[9px] font-bold border border-amber-200 shrink-0">EDIT</span>
         </div>
-        <ion-buttons slot="end" class="gap-0 pr-1">
-            <ion-button (click)="newInvoice()" fill="clear" size="small" class="text-slate-600">
-                <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+        <ion-buttons slot="end" class="gap-0 pr-0.5">
+            <ion-button (click)="printInvoice()" fill="clear" size="small" class="text-slate-600 w-8 h-8">
+                <ion-icon slot="icon-only" name="print-outline" class="text-lg"></ion-icon>
             </ion-button>
-            <ion-button (click)="printInvoice()" fill="clear" size="small" class="text-slate-600">
-                <ion-icon slot="icon-only" name="print-outline"></ion-icon>
+            <ion-button (click)="newInvoice()" fill="clear" size="small" class="text-slate-600 w-8 h-8">
+                <ion-icon slot="icon-only" name="add-circle-outline" class="text-lg"></ion-icon>
             </ion-button>
             <ion-button (click)="saveInvoice()" color="primary" fill="solid" size="small" shape="round"
-                class="font-bold text-xs shadow-sm h-7 min-h-0 ml-1">
+                class="font-bold text-xs shadow-sm h-7 min-h-0 ml-1 px-3">
                 Save
             </ion-button>
         </ion-buttons>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ViewDidEnter } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
+import { PdfService } from '../services/pdf.service';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -21,10 +22,43 @@ export class EstimateHistoryPage implements ViewDidEnter {
     startDate = signal<string | null>(null);
     endDate = signal<string | null>(null);
     showFilters = signal(false);
-
     // Bulk Actions
     selectionMode = signal(false);
     selectedIds = signal<Set<number>>(new Set());
+
+    // View Modal
+    selectedEstimate = signal<any | null>(null);
+
+    parsedCustomColumns = computed(() => {
+        const est = this.selectedEstimate();
+        if (!est) return [];
+
+        const builtInDefaults = [
+            { id: 'product', isBuiltIn: true },
+            { id: 'quantity', isBuiltIn: true },
+            { id: 'price', isBuiltIn: true },
+            { id: 'total', isBuiltIn: true }
+        ];
+
+        if (!est.customColumns) return builtInDefaults;
+
+        try {
+            const parsed = typeof est.customColumns === 'string' ? JSON.parse(est.customColumns) : est.customColumns;
+            return [...builtInDefaults.slice(0, 3), ...parsed.map((c: any) => ({ ...c, isBuiltIn: false })), builtInDefaults[3]];
+        } catch (e) {
+            return builtInDefaults;
+        }
+    });
+
+    parsedColumnLabels = computed(() => {
+        const est = this.selectedEstimate();
+        if (!est || !est.columnLabels) return { product: 'Item', quantity: 'Qty', price: 'Price', total: 'Total' };
+        try {
+            return JSON.parse(est.columnLabels);
+        } catch (e) {
+            return { product: 'Item', quantity: 'Qty', price: 'Price', total: 'Total' };
+        }
+    });
 
     filteredEstimates = computed(() => {
         let items = this.estimates();
@@ -53,7 +87,7 @@ export class EstimateHistoryPage implements ViewDidEnter {
 
     hasDateFilter = computed(() => !!this.startDate() || !!this.endDate());
 
-    constructor(private api: ApiService, private router: Router) { }
+    constructor(private api: ApiService, private router: Router, private pdfService: PdfService) { }
 
     ionViewDidEnter() {
         this.loadEstimates();
@@ -123,5 +157,56 @@ export class EstimateHistoryPage implements ViewDidEnter {
                 });
             });
         }
+    }
+    // View Modal Logic
+    viewEstimate(estimate: any) {
+        if (this.selectionMode()) {
+            this.toggleSelection(estimate.id);
+        } else {
+            this.selectedEstimate.set(estimate);
+        }
+    }
+
+    closeView() {
+        this.selectedEstimate.set(null);
+    }
+
+    getCustomValue(item: any, col: any): any {
+        if (col.id === 'total') return item.total;
+        if (col.id === 'product' || col.id === 'quantity' || col.id === 'price') return '';
+
+        let values = item.customValues;
+        if (typeof values === 'string') {
+            try { values = JSON.parse(values); } catch (e) { values = {}; }
+        } else if (!values) {
+            values = {};
+        }
+
+        if (col.type === 'calculated') {
+            return this.evaluateFormula(col.formula, item.price, item.quantity);
+        }
+        return values[col.name] || (col.type === 'number' ? 0 : '');
+    }
+
+    evaluateFormula(formula: string, price: number, qty: number): number {
+        try {
+            const cleanFormula = formula
+                .replace(/price/g, String(price))
+                .replace(/qty/g, String(qty))
+                .replace(/[^0-9+\-*/().]/g, '');
+            return (new Function('return ' + cleanFormula))() || 0;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    async openPdfPreview(estimate: any) {
+        const pdfData = {
+            ...estimate,
+            client: estimate.client || { name: 'Client' }
+        };
+        this.api.getSettings().subscribe(settings => {
+            this.pdfService.generateEstimatePdf(pdfData, settings);
+        });
     }
 }

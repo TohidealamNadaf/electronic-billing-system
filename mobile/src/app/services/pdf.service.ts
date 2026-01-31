@@ -302,23 +302,34 @@ export class PdfService {
     }
 
     private async createAndSharePdf(docDefinition: any, fileName: string) {
-        pdfMake.createPdf(docDefinition).getBase64(async (encoded: string) => {
-            try {
-                const result = await Filesystem.writeFile({
-                    path: fileName,
-                    data: encoded,
-                    directory: Directory.Cache, // Use Cache for temporary sharing
-                });
+        if (this.platform.is('hybrid')) {
+            // Mobile/Hybrid implementation using Filesystem & Share
+            pdfMake.createPdf(docDefinition).getBase64(async (encoded: string) => {
+                try {
+                    const result = await Filesystem.writeFile({
+                        path: fileName,
+                        data: encoded,
+                        directory: Directory.Cache,
+                    });
 
-                await Share.share({
-                    url: result.uri,
-                    title: 'Share PDF',
-                    dialogTitle: 'Share PDF'
-                });
+                    await Share.share({
+                        url: result.uri,
+                        title: 'Share PDF',
+                        dialogTitle: 'Share PDF'
+                    });
+                } catch (err) {
+                    console.error('Error sharing PDF', err);
+                    alert('Error creating PDF. Please check permissions.');
+                }
+            });
+        } else {
+            // Web/Desktop implementation: Open in new tab
+            try {
+                pdfMake.createPdf(docDefinition).open();
             } catch (err) {
-                console.error('Error creating PDF', err);
-                alert('Error creating PDF. Please check permissions.');
+                console.error('Error opening PDF', err);
+                alert('Error opening PDF preview. Please check valid pop-up blocker settings.');
             }
-        });
+        }
     }
 }

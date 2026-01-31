@@ -98,8 +98,7 @@
         </div>
 
         <div *ngIf="!isLoading() && filteredInvoices().length > 0" class="space-y-3">
-            <ion-card *ngFor="let invoice of filteredInvoices()"
-                (click)="selectionMode() ? toggleSelection(invoice.id) : null"
+            <ion-card *ngFor="let invoice of filteredInvoices()" (click)="viewInvoice(invoice)"
                 class="m-0 shadow-sm border border-slate-100 rounded-xl bg-white relative overflow-visible active:scale-[0.99] transition-transform duration-100"
                 [class.ring-2]="selectedIds().has(invoice.id)" [class.ring-indigo-500]="selectedIds().has(invoice.id)">
 
@@ -142,11 +141,11 @@
                         </div>
 
                         <div *ngIf="!selectionMode()" class="flex gap-2">
-                            <button (click)="editInvoice(invoice)"
+                            <button (click)="editInvoice(invoice); $event.stopPropagation()"
                                 class="bg-slate-100 text-slate-600 p-1.5 rounded-full hover:bg-slate-200">
                                 <ion-icon name="create" class="text-xs"></ion-icon>
                             </button>
-                            <button (click)="deleteInvoice(invoice.id)"
+                            <button (click)="deleteInvoice(invoice.id); $event.stopPropagation()"
                                 class="bg-red-50 text-red-500 p-1.5 rounded-full hover:bg-red-100">
                                 <ion-icon name="trash" class="text-xs"></ion-icon>
                             </button>
@@ -163,4 +162,157 @@
             <ion-icon name="add"></ion-icon>
         </ion-fab-button>
     </ion-fab>
+
+    <!-- View Modal (Preview) -->
+    @if (selectedInvoice(); as invoice) {
+    <div class="fixed inset-0 bg-slate-900/50 z-[100] flex items-center justify-center p-4 animate-fade-in backdrop-blur-sm no-print"
+        (click)="closeView()">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden"
+            (click)="$event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div>
+                    <h3 class="font-display font-bold text-lg text-slate-900">
+                        {{ 'Invoice Details' }}
+                    </h3>
+                    <p class="text-xs text-slate-500 font-mono" *ngIf="invoice.id">INV-{{
+                        getInvoiceNumberDate(invoice.date)
+                        }}-{{ invoice.id }}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Preview Button -->
+                    <button (click)="openPdfPreview(invoice)"
+                        class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-xs uppercase tracking-wide transition-colors">
+                        <ion-icon name="document-text-outline" class="text-sm"></ion-icon>
+                        PDF Preview
+                    </button>
+                    <!-- Close Button -->
+                    <button (click)="closeView()" class="p-1 text-slate-400 hover:text-slate-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-hidden relative bg-white">
+                <div class="p-6 overflow-y-auto h-full">
+                    <div class="grid grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Billed To</h4>
+                            <div class="text-base font-bold text-slate-900">{{ invoice.client?.name }}</div>
+                            <div class="text-sm text-slate-600 mt-1">{{ invoice.client?.address }}</div>
+                            <div class="text-sm text-slate-600">{{ invoice.client?.phone }}</div>
+                        </div>
+                        <div class="text-right">
+                            <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Invoice Info
+                            </h4>
+                            <div class="text-sm text-slate-600"><span class="font-medium text-slate-900">Date:</span> {{
+                                invoice.date | date:'longDate' }}</div>
+                            <div class="text-sm text-slate-600"><span class="font-medium text-slate-900">Status:</span>
+                                <span class="font-bold ml-1" [ngClass]="{
+                            'text-green-600': invoice.paymentStatus === 'Paid',
+                            'text-amber-600': invoice.paymentStatus === 'Partially Paid',
+                            'text-red-600': invoice.paymentStatus === 'Pending'
+                        }">{{ invoice.paymentStatus }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse mb-8 min-w-[600px]">
+                            <thead>
+                                <tr
+                                    class="bg-slate-50 border-y border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                                    @for (col of parsedCustomColumns(); track col.name) {
+                                    <th class="px-4 py-2" [class.text-center]="col.id === 'quantity'"
+                                        [class.text-right]="col.id === 'price' || col.id === 'total' || (col.isBuiltIn === false && col.type !== 'text')"
+                                        [class.text-left]="col.id === 'product' || (col.isBuiltIn === false && col.type === 'text')">
+                                        {{ col.name || (parsedColumnLabels()[col.id] || col.id) }}
+                                    </th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @for (item of invoice.items; track item.id) {
+                                <tr>
+                                    @for (col of parsedCustomColumns(); track col.name) {
+                                    <td class="px-4 py-1.5 text-sm" [class.text-center]="col.id === 'quantity'"
+                                        [class.text-right]="col.id === 'price' || col.id === 'total' || (col.isBuiltIn === false && col.type !== 'text')"
+                                        [class.text-left]="col.id === 'product' || (col.isBuiltIn === false && col.type === 'text')"
+                                        [class.text-slate-900]="col.id === 'product' || col.id === 'total'"
+                                        [class.text-slate-600]="col.id !== 'product' && col.id !== 'total'"
+                                        [class.font-bold]="col.id === 'total'">
+
+                                        <ng-container [ngSwitch]="col.id">
+                                            <div *ngSwitchCase="'product'">
+                                                {{ item.productName || item.product?.name }}
+                                            </div>
+                                            <div *ngSwitchCase="'quantity'">{{ item.quantity }}</div>
+                                            <div *ngSwitchCase="'price'">₹{{ item.price | number:'1.2-2' }}</div>
+                                            <div *ngSwitchCase="'total'">₹{{ (item.price * item.quantity) |
+                                                number:'1.2-2'
+                                                }}</div>
+
+                                            <div *ngSwitchDefault>
+                                                @if (col.type === 'number' || col.type === 'calculated') {
+                                                {{ col.isCurrency ? '₹' : '' }}{{ getCustomValue(item, col) |
+                                                number:'1.2-2'
+                                                }}
+                                                } @else {
+                                                {{ getCustomValue(item, col) }}
+                                                }
+                                            </div>
+                                        </ng-container>
+                                    </td>
+                                    }
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <div class="w-1/2 md:w-1/3 bg-slate-50 p-4 rounded border border-slate-100">
+                            <div class="flex justify-between items-center mb-1 text-sm text-slate-500">
+                                <span>Subtotal</span>
+                                <span>₹{{ invoice.subTotal | number:'1.2-2' }}</span>
+                            </div>
+                            @if (invoice.discountAmount > 0) {
+                            <div class="flex justify-between items-center mb-1 text-sm text-red-500">
+                                <span>Discount</span>
+                                <span>- ₹{{ invoice.discountAmount | number:'1.2-2' }}</span>
+                            </div>
+                            }
+                            @if (invoice.gstEnabled) {
+                            <div class="flex justify-between items-center mb-2 text-sm text-slate-500">
+                                <span>GST ({{ invoice.gstRate }})</span>
+                                <span>₹{{ invoice.taxTotal | number:'1.2-2' }}</span>
+                            </div>
+                            }
+                            <div
+                                class="flex justify-between items-center pt-2 border-t border-slate-200 text-base font-bold text-slate-900">
+                                <span>Total</span>
+                                <span>₹{{ invoice.total | number:'1.2-2' }}</span>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-slate-100 space-y-2"
+                                *ngIf="invoice.showPaymentDetails && invoice.paidAmount > 0">
+                                <div class="flex justify-between items-center text-xs text-green-600 font-medium">
+                                    <span>Advanced Paid</span>
+                                    <span>₹{{ invoice.paidAmount | number:'1.2-2' }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs text-amber-600 font-bold">
+                                    <span>Remaining Balance</span>
+                                    <span>₹{{ (invoice.total - invoice.paidAmount) | number:'1.2-2' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
 </ion-content>

@@ -3,21 +3,21 @@
         <ion-buttons slot="start">
             <ion-menu-button color="dark"></ion-menu-button>
         </ion-buttons>
-        <div class="flex items-center gap-2">
-            <ion-title class="font-display font-bold text-lg text-slate-900 px-0">
+        <div class="flex items-center gap-1.5 overflow-hidden">
+            <ion-title class="font-display font-bold text-base text-slate-900 px-0 pl-2 shrink-0">
                 {{ editEstimateId() ? 'Edit Estimate' : 'Estimate' }}
             </ion-title>
             <span
-                class="px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 text-[10px] font-bold uppercase tracking-wider border border-primary-200">
+                class="px-1.5 py-0.5 rounded bg-primary-50 text-primary-700 text-[9px] font-bold uppercase tracking-wider border border-primary-200 shrink-0">
                 {{ editEstimateId() ? 'Editing' : 'Draft' }}
             </span>
         </div>
-        <ion-buttons slot="end" class="gap-0 pr-1">
-            <ion-button (click)="printEstimate()" fill="clear" size="small" class="text-slate-600">
-                <ion-icon slot="icon-only" name="print-outline"></ion-icon>
+        <ion-buttons slot="end" class="gap-0 pr-0.5">
+            <ion-button (click)="printEstimate()" fill="clear" size="small" class="text-slate-600 w-8 h-8">
+                <ion-icon slot="icon-only" name="print-outline" class="text-lg"></ion-icon>
             </ion-button>
             <ion-button (click)="saveEstimate()" color="primary" fill="solid" size="small" shape="round"
-                class="font-bold text-xs shadow-sm h-7 min-h-0 ml-1">
+                class="font-bold text-xs shadow-sm h-7 min-h-0 ml-1 px-3">
                 Save
             </ion-button>
         </ion-buttons>
@@ -333,3 +333,136 @@
     }
 
 </ion-content>
+
+<!-- View Modal (Preview) -->
+@if (selectedEstimate(); as estimate) {
+<div class="fixed inset-0 bg-slate-900/50 z-[100] flex items-center justify-center p-4 animate-fade-in backdrop-blur-sm no-print"
+    (click)="closeView()">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden"
+        (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <div>
+                <h3 class="font-display font-bold text-lg text-slate-900">
+                    {{ 'Estimate Details' }}
+                </h3>
+                <p class="text-xs text-slate-500 font-mono" *ngIf="estimate.id">EST-{{ estimate.id }}</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <!-- Preview Button -->
+                <button (click)="openPdfPreview(estimate)"
+                    class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-xs uppercase tracking-wide transition-colors">
+                    <ion-icon name="document-text-outline" class="text-sm"></ion-icon>
+                    PDF Preview
+                </button>
+                <!-- Close Button -->
+                <button (click)="closeView()" class="p-1 text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="flex-1 overflow-hidden relative bg-white">
+            <div class="p-6 overflow-y-auto h-full">
+                <div class="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Billed To</h4>
+                        <div class="text-base font-bold text-slate-900">{{ estimate.client?.name }}</div>
+                        <div class="text-sm text-slate-600 mt-1">{{ estimate.client?.address }}</div>
+                        <div class="text-sm text-slate-600">{{ estimate.client?.phone }}</div>
+                    </div>
+                    <div class="text-right">
+                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Estimate Info
+                        </h4>
+                        <div class="text-sm text-slate-600"><span class="font-medium text-slate-900">Date:</span> {{
+                            estimate.date | date:'longDate' }}</div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse mb-8 min-w-[600px]">
+                        <thead>
+                            <tr
+                                class="bg-slate-50 border-y border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                                @for (col of parsedCustomColumns(); track col.name) {
+                                <th class="px-4 py-2" [class.text-center]="col.id === 'quantity'"
+                                    [class.text-right]="col.id === 'price' || col.id === 'total' || (col.isBuiltIn === false && col.type !== 'text')"
+                                    [class.text-left]="col.id === 'product' || (col.isBuiltIn === false && col.type === 'text')">
+                                    {{ col.name || (parsedColumnLabels()[col.id] || col.id) }}
+                                </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @for (item of estimate.items; track item.id) {
+                            <tr>
+                                @for (col of parsedCustomColumns(); track col.name) {
+                                <td class="px-4 py-1.5 text-sm" [class.text-center]="col.id === 'quantity'"
+                                    [class.text-right]="col.id === 'price' || col.id === 'total' || (col.isBuiltIn === false && col.type !== 'text')"
+                                    [class.text-left]="col.id === 'product' || (col.isBuiltIn === false && col.type === 'text')"
+                                    [class.text-slate-900]="col.id === 'product' || col.id === 'total'"
+                                    [class.text-slate-600]="col.id !== 'product' && col.id !== 'total'"
+                                    [class.font-bold]="col.id === 'total'">
+
+                                    <ng-container [ngSwitch]="col.id">
+                                        <div *ngSwitchCase="'product'">
+                                            {{ item.productName || item.product?.name }}
+                                        </div>
+                                        <div *ngSwitchCase="'quantity'">{{ item.quantity }}</div>
+                                        <div *ngSwitchCase="'price'">₹{{ item.price | number:'1.2-2' }}</div>
+                                        <div *ngSwitchCase="'total'">₹{{ (item.price * item.quantity) |
+                                            number:'1.2-2'
+                                            }}</div>
+
+                                        <div *ngSwitchDefault>
+                                            @if (col.type === 'number' || col.type === 'calculated') {
+                                            {{ col.isCurrency ? '₹' : '' }}{{ getCustomColumnValue(item, col) |
+                                            number:'1.2-2'
+                                            }}
+                                            } @else {
+                                            {{ getCustomColumnValue(item, col) }}
+                                            }
+                                        </div>
+                                    </ng-container>
+                                </td>
+                                }
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-end">
+                    <div class="w-1/2 md:w-1/3 bg-slate-50 p-4 rounded border border-slate-100">
+                        <div class="flex justify-between items-center mb-1 text-sm text-slate-500">
+                            <span>Subtotal</span>
+                            <span>₹{{ estimate.subTotal | number:'1.2-2' }}</span>
+                        </div>
+                        @if (estimate.discountAmount > 0) {
+                        <div class="flex justify-between items-center mb-1 text-sm text-red-500">
+                            <span>Discount</span>
+                            <span>- ₹{{ estimate.discountAmount | number:'1.2-2' }}</span>
+                        </div>
+                        }
+                        @if (estimate.gstEnabled) {
+                        <div class="flex justify-between items-center mb-2 text-sm text-slate-500">
+                            <span>GST ({{ estimate.gstRate }})</span>
+                            <span>₹{{ estimate.taxTotal | number:'1.2-2' }}</span>
+                        </div>
+                        }
+                        <div
+                            class="flex justify-between items-center pt-2 border-t border-slate-200 text-base font-bold text-slate-900">
+                            <span>Total</span>
+                            <span>₹{{ estimate.total | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}

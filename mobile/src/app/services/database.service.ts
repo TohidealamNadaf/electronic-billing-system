@@ -17,7 +17,7 @@ export class DatabaseService {
         this.platform = Capacitor.getPlatform();
     }
 
-    async initializePlugin(): Promise<boolean> {
+    async initializePlugin(): Promise<void> {
         try {
             if (this.platform === 'web') {
                 const jeepSqlite = document.createElement('jeep-sqlite');
@@ -34,11 +34,9 @@ export class DatabaseService {
             if (this.platform === 'web') {
                 await this.sqlite.saveToStore(DB_NAME);
             }
-
-            return true;
         } catch (err: any) {
             console.error('Error initializing SQLite:', err);
-            return false;
+            throw err;
         }
     }
 

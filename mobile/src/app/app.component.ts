@@ -10,6 +10,7 @@ import { DatabaseService } from './services/database.service';
 })
 export class AppComponent {
   isAppReady = false;
+  initError = '';
 
   constructor(private platform: Platform, private databaseService: DatabaseService) {
     this.initializeApp();
@@ -17,9 +18,14 @@ export class AppComponent {
 
   async initializeApp() {
     this.platform.ready().then(async () => {
-      await this.databaseService.initializePlugin();
-      console.log('Database initialized');
-      this.isAppReady = true;
+      try {
+        await this.databaseService.initializePlugin();
+        console.log('Database initialized');
+        this.isAppReady = true;
+      } catch (e: any) {
+        console.error('Initialization failed', e);
+        this.initError = e.message || JSON.stringify(e);
+      }
     });
   }
 }

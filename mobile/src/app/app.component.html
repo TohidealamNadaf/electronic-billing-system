@@ -62,5 +62,33 @@
       </div>
     </ion-footer>
   </ion-menu>
-  <ion-router-outlet id="main-content" *ngIf="isAppReady"></ion-router-outlet>
+  <ion-router-outlet id="main-content" *ngIf="isAppReady && !initError"></ion-router-outlet>
+
+  <div *ngIf="!isAppReady && !initError"
+    style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #ffffff; color: #333; font-family: sans-serif; flex-direction: column;">
+    <div class="spinner"
+      style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;">
+    </div>
+    <h2 style="margin-top: 20px;">Initializing App...</h2>
+  </div>
+
+  <div *ngIf="initError"
+    style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #fff1f2; color: #9f1239; font-family: sans-serif; flex-direction: column; padding: 20px; text-align: center;">
+    <h2 style="font-size: 24px; margin-bottom: 10px;">Initialization Error</h2>
+    <p style="font-size: 16px; margin-bottom: 20px; max-width: 80%;">{{ initError }}</p>
+    <button onclick="window.location.reload()"
+      style="padding: 10px 20px; background: #be123c; color: white; border: none; border-radius: 4px; font-weight: bold;">Retry</button>
+  </div>
+
+  <style>
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </ion-app>

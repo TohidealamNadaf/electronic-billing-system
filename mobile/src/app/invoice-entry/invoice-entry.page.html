@@ -530,12 +530,12 @@
 
     <!-- View Modal (Preview) -->
     @if (selectedInvoice(); as invoice) {
-    <div class="fixed inset-0 bg-slate-900/50 z-[100] flex items-center justify-center p-4 animate-fade-in backdrop-blur-sm no-print"
+    <div class="fixed inset-0 bg-slate-900/50 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 animate-fade-in backdrop-blur-sm no-print"
         (click)="closeView()">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden"
+        <div class="bg-white w-full h-full md:h-[90vh] md:max-w-6xl md:rounded-lg shadow-xl flex flex-col overflow-hidden"
             (click)="$event.stopPropagation()">
             <!-- Modal Header -->
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <div>
                     <h3 class="font-display font-bold text-lg text-slate-900">
                         {{ 'Invoice Details' }}

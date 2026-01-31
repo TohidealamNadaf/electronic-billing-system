@@ -1,33 +1,159 @@
+/* Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:host {
+    --menu-bg: #ffffff;
+    --menu-width: 280px;
+    --item-hover-bg: #f8fafc;
+    --item-selected-bg: #eff6ff;
+    --item-selected-color: #2563eb;
+    --text-color: #334155;
+    --text-color-light: #94a3b8;
+}
+
+@media (prefers-color-scheme: dark) {
+    :host {
+        --menu-bg: #0f172a;
+        --item-hover-bg: #1e293b;
+        --item-selected-bg: #1e293b;
+        --item-selected-color: #60a5fa;
+        --text-color: #e2e8f0;
+        --text-color-light: #64748b;
+    }
+}
+
+.custom-menu {
+    --width: var(--menu-width);
+}
+
+.menu-content {
+    --background: var(--menu-bg);
+}
+
+.menu-header {
+    padding: 32px 24px;
+    background: var(--menu-bg);
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
+
+            svg {
+                width: 24px;
+                height: 24px;
+                color: white;
+            }
+        }
+    }
+}
+
+.menu-items-container {
+    padding: 0 12px;
+}
+
+.menu-section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-color-light);
+    padding: 8px 12px;
+    margin-top: 8px;
+}
+
 .menu-item {
     --background: transparent;
-    --color: #64748b;
-    --min-height: 50px;
-    --padding-start: 16px;
+    --background-hover: transparent;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --min-height: 44px;
     margin-bottom: 4px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
 
-    ion-icon {
-        color: #94a3b8;
+    &::part(native) {
+        border-radius: 8px;
+        padding-right: 12px;
+    }
+
+    &:hover {
+        background-color: var(--item-hover-bg);
+
+        ion-label {
+            color: #1e293b;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            ion-label {
+                color: #f8fafc;
+            }
+        }
+    }
+
+    .item-icon-wrapper {
+        min-width: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        ion-icon {
+            font-size: 20px;
+            color: var(--text-color-light);
+            transition: color 0.2s ease;
+        }
+    }
+
+    ion-label {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        font-size: 0.95rem;
+        color: var(--text-color);
+        margin: 0;
+        letter-spacing: 0.01em;
     }
 
     &.selected-item {
-        --background: #eff6ff;
-        --color: #2563eb;
+        --background: var(--item-selected-bg);
 
-        ion-icon {
-            color: #2563eb;
+        .item-icon-wrapper ion-icon {
+            color: var(--item-selected-color);
         }
 
-        &::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 6px;
-            bottom: 6px;
-            width: 4px;
-            background: #2563eb;
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
+        ion-label {
+            color: var(--item-selected-color);
+            font-weight: 600;
         }
+    }
+}
+
+.menu-spacer {
+    height: 24px;
+}
+
+.menu-footer {
+    background: var(--menu-bg);
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+
+    p {
+        font-size: 0.7rem;
+        font-weight: 500;
+        color: var(--text-color-light);
+        text-align: center;
+        padding: 16px;
+        margin: 0;
+        opacity: 0.7;
     }
 }
 

@@ -23,7 +23,21 @@
       "dom"
     ],
     "skipLibCheck": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "paths": {
+      "crypto": [
+        "./node_modules/crypto-browserify"
+      ],
+      "buffer": [
+        "./node_modules/buffer"
+      ],
+      "stream": [
+        "./node_modules/stream-browserify"
+      ],
+      "vm": [
+        "./node_modules/vm-browserify"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

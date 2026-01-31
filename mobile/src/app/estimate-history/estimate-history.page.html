@@ -3,63 +3,154 @@
         <ion-buttons slot="start">
             <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <ion-title class="font-display font-medium">Estimate History</ion-title>
+        <ion-title class="font-display font-medium text-sm">
+            Estimate History
+            <span *ngIf="filteredEstimates().length > 0" class="ml-2 bg-white/20 px-2 py-0.5 rounded text-xs">{{
+                filteredEstimates().length }}</span>
+        </ion-title>
         <ion-buttons slot="end">
+            <ion-button (click)="toggleSelectionMode()">
+                <ion-icon [name]="selectionMode() ? 'close-circle-outline' : 'checkbox-outline'"></ion-icon>
+            </ion-button>
             <ion-button (click)="loadEstimates()">
                 <ion-icon name="refresh-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
+    <ion-toolbar color="light" class="border-b border-slate-200">
+        <div class="px-2 py-1 flex gap-2">
+            <ion-searchbar [debounce]="300" (ionInput)="searchTerm.set($any($event).target.value || '')"
+                placeholder="Search Client or ID..." class="text-xs h-8 p-0" showCancelButton="never">
+            </ion-searchbar>
+            <ion-button (click)="showFilters.set(!showFilters())" fill="clear" size="small"
+                [color]="hasDateFilter() ? 'primary' : 'medium'">
+                <ion-icon name="calendar-outline"></ion-icon>
+            </ion-button>
+        </div>
+
+        <!-- Date Filters Expandable -->
+        <div *ngIf="showFilters()"
+            class="px-3 pb-3 pt-0 flex gap-2 animate-fade-in bg-slate-50 border-t border-slate-200">
+            <div class="flex-1">
+                <label class="text-[10px] uppercase font-bold text-slate-400">From</label>
+                <input type="date" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"
+                    class="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs font-bold text-slate-700">
+            </div>
+            <div class="flex-1">
+                <label class="text-[10px] uppercase font-bold text-slate-400">To</label>
+                <input type="date" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)"
+                    class="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs font-bold text-slate-700">
+            </div>
+            <div class="flex items-end pb-0.5">
+                <ion-button (click)="startDate.set(null); endDate.set(null); showFilters.set(false)" fill="clear"
+                    color="danger" size="small">
+                    <ion-icon name="close-circle"></ion-icon>
+                </ion-button>
+            </div>
+        </div>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content class="bg-slate-50">
-    <div class="max-w-md mx-auto p-4">
+    <!-- Stats Banner -->
+    <div *ngIf="filteredEstimates().length > 0 && !selectionMode()"
+        class="bg-indigo-50 border-b border-indigo-100 p-2 flex justify-between items-center text-xs px-4">
+        <span class="text-indigo-600 font-bold uppercase tracking-wide">Total Value</span>
+        <span class="text-indigo-900 font-black text-sm">{{ totalRevenue() | currency:'INR' }}</span>
+    </div>
+
+    <!-- Bulk Actions Banner -->
+    <div *ngIf="selectionMode()"
+        class="bg-slate-800 text-white p-3 flex justify-between items-center sticky top-0 z-10 shadow-md">
+        <span class="text-xs font-bold uppercase tracking-wide px-2">{{ selectedIds().size }} Selected</span>
+        <div class="flex gap-2">
+            <button (click)="selectAll()"
+                class="text-xs font-bold text-indigo-200 hover:text-white uppercase px-2">All</button>
+            <button (click)="deleteSelected()" [disabled]="selectedIds().size === 0"
+                class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded shadow-sm disabled:opacity-50">
+                Delete
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto p-4 pb-20">
 
         <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-12 space-y-4">
             <ion-spinner name="crescent" color="primary"></ion-spinner>
             <div class="text-slate-500 text-sm">Loading estimates...</div>
         </div>
 
-        <div *ngIf="!isLoading() && estimates().length === 0"
+        <div *ngIf="!isLoading() && filteredEstimates().length === 0"
             class="flex flex-col items-center justify-center py-16 text-center">
             <div class="bg-indigo-50 p-4 rounded-full mb-4">
-                <ion-icon name="folder-open-outline" class="text-3xl text-indigo-400"></ion-icon>
+                <ion-icon name="search-outline" class="text-3xl text-indigo-400"></ion-icon>
             </div>
-            <h3 class="text-slate-800 font-medium text-lg">No Estimates</h3>
-            <p class="text-slate-500 text-sm mt-1 max-w-[200px]">Create an estimate to see it here.</p>
-            <ion-button routerLink="/estimate-entry" class="mt-6" mode="ios">
-                New Estimate
+            <h3 class="text-slate-800 font-medium text-lg">No Estimates Found</h3>
+            <p class="text-slate-500 text-sm mt-1 max-w-[200px]">Try adjusting your search or filters.</p>
+            <ion-button (click)="searchTerm.set(''); startDate.set(null); endDate.set(null)" class="mt-4" fill="outline"
+                size="small">
+                Clear Filters
             </ion-button>
         </div>
 
-        <div *ngIf="!isLoading() && estimates().length > 0" class="space-y-3">
-            <ion-card *ngFor="let est of estimates()" class="m-0 shadow-sm border border-slate-100 rounded-xl bg-white">
-                <div class="p-4">
+        <div *ngIf="!isLoading() && filteredEstimates().length > 0" class="space-y-3">
+            <ion-card *ngFor="let est of filteredEstimates()" (click)="selectionMode() ? toggleSelection(est.id) : null"
+                class="m-0 shadow-sm border border-slate-100 rounded-xl bg-white relative overflow-visible active:scale-[0.99] transition-transform duration-100"
+                [class.ring-2]="selectedIds().has(est.id)" [class.ring-indigo-500]="selectedIds().has(est.id)">
+
+                <!-- Selection Checkbox Overlay -->
+                <div *ngIf="selectionMode()" class="absolute -left-2 top-1/2 -translate-y-1/2 z-20">
+                    <div class="bg-white rounded-full p-1 shadow-md border border-slate-100">
+                        <ion-icon [name]="selectedIds().has(est.id) ? 'checkmark-circle' : 'ellipse-outline'"
+                            [color]="selectedIds().has(est.id) ? 'primary' : 'medium'" class="text-xl"></ion-icon>
+                    </div>
+                </div>
+
+                <div class="p-4" [class.pl-8]="selectionMode()">
                     <div class="flex justify-between items-start mb-2">
                         <div>
-                            <div class="text-xs font-semibold text-orange-600 uppercase tracking-wide">EST #{{est.id}}
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-[10px] font-black text-orange-600 uppercase tracking-wider bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100">
+                                    EST-{{ est.id }}
+                                </span>
+                                <span class="text-[10px] font-bold text-slate-400">{{ est.date | date:'dd MMM' }}</span>
                             </div>
-                            <div class="text-lg font-bold text-slate-800">{{est.client?.name || 'Unknown Client'}}</div>
+                            <div class="text-base font-bold text-slate-800 mt-1 leading-tight">{{est.client?.name ||
+                                'Unknown Client'}}</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-lg font-bold text-slate-900">{{ est.total | currency:'INR' }}</div>
-                            <div class="text-xs text-slate-500">{{ est.date | date:'mediumDate' }}</div>
+                            <div class="text-lg font-black text-slate-800">{{ est.total | currency:'INR' }}</div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-50">
-                        <ion-button fill="clear" size="small" (click)="editEstimate(est)" class="text-indigo-600">
-                            <ion-icon name="create-outline" slot="start"></ion-icon>
-                            Edit
-                        </ion-button>
-                        <ion-button fill="clear" size="small" color="danger" (click)="deleteEstimate(est.id)">
-                            <ion-icon name="trash-outline" slot="start"></ion-icon>
-                            Delete
-                        </ion-button>
+                    <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                                <ion-icon name="list"></ion-icon> {{ est.items?.length || 0 }} Items
+                            </span>
+                        </div>
+
+                        <div *ngIf="!selectionMode()" class="flex gap-2">
+                            <button (click)="editEstimate(est)"
+                                class="bg-slate-100 text-slate-600 p-1.5 rounded-full hover:bg-slate-200">
+                                <ion-icon name="create" class="text-xs"></ion-icon>
+                            </button>
+                            <button (click)="deleteEstimate(est.id)"
+                                class="bg-red-50 text-red-500 p-1.5 rounded-full hover:bg-red-100">
+                                <ion-icon name="trash" class="text-xs"></ion-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </ion-card>
         </div>
-
     </div>
+
+    <!-- FAB for New Estimate (Only show when not selecting) -->
+    <ion-fab *ngIf="!selectionMode()" vertical="bottom" horizontal="end" slot="fixed" class="mb-4 mr-2">
+        <ion-fab-button routerLink="/estimate-entry" color="primary">
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
 </ion-content>

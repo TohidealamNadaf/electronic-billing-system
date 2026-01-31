@@ -116,7 +116,7 @@ export class EstimateEntryPage implements OnInit {
                 this.loadEstimateForEdit(est);
                 this.api.estimateToEdit.set(null);
             }
-        }, { allowSignalWrites: true });
+        });
     }
 
     ngOnInit() {
@@ -138,6 +138,14 @@ export class EstimateEntryPage implements OnInit {
 
     removeItem(index: number) {
         this.items.update(items => items.filter((_, i) => i !== index));
+    }
+
+    resetItem(index: number) {
+        this.items.update(items => {
+            const newItems = [...items];
+            newItems[index] = { productId: 0, quantity: 1, price: 0, total: 0, customValues: {} };
+            return newItems;
+        });
     }
 
     onProductChange(index: number, val: any) {

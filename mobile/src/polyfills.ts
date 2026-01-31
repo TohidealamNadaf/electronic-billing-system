@@ -41,7 +41,7 @@
  *  (window as any).__Zone_enable_cross_context_check = true;
  *
  */
- 
+
 import './zone-flags';
 
 /***************************************************************************************************
@@ -50,6 +50,10 @@ import './zone-flags';
 import 'zone.js';  // Included with Angular CLI.
 
 
+
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
+(window as any).global = window;
+import { Buffer } from 'buffer';
+(window as any).Buffer = Buffer;

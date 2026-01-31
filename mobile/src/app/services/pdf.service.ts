@@ -3,10 +3,28 @@ import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
-import * as pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 
-(<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
+declare var require: any;
+const pdfMake = require('pdfmake/build/pdfmake');
+const pdfFonts = require('pdfmake/build/vfs_fonts');
+
+// Assign vfs, checking different possible structures for the fonts bundle
+if (pdfFonts && pdfFonts.pdfMake && pdfFonts.pdfMake.vfs) {
+    pdfMake.vfs = pdfFonts.pdfMake.vfs;
+} else if (pdfFonts && pdfFonts.vfs) {
+    pdfMake.vfs = pdfFonts.vfs;
+} else if (pdfFonts && pdfFonts.default && pdfFonts.default.vfs) {
+    pdfMake.vfs = pdfFonts.default.vfs;
+} else if (pdfFonts && (pdfFonts['Roboto-Regular.ttf'] || pdfFonts['Roboto-Medium.ttf'])) {
+    // pdfFonts IS the vfs object directly
+    pdfMake.vfs = pdfFonts;
+} else {
+    console.warn('Could not find vfs in pdfFonts', pdfFonts);
+    // Try assigning directly as last resort if it looks like an object
+    if (typeof pdfFonts === 'object') {
+        pdfMake.vfs = pdfFonts;
+    }
+}
 
 @Injectable({
     providedIn: 'root'

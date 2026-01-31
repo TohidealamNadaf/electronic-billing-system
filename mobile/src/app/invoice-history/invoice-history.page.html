@@ -3,74 +3,160 @@
         <ion-buttons slot="start">
             <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <ion-title class="font-display font-medium">Invoice History</ion-title>
+        <ion-title class="font-display font-medium text-sm">
+            Invoice History
+            <span *ngIf="filteredInvoices().length > 0" class="ml-2 bg-white/20 px-2 py-0.5 rounded text-xs">{{
+                filteredInvoices().length }}</span>
+        </ion-title>
         <ion-buttons slot="end">
+            <ion-button (click)="toggleSelectionMode()">
+                <ion-icon [name]="selectionMode() ? 'close-circle-outline' : 'checkbox-outline'"></ion-icon>
+            </ion-button>
             <ion-button (click)="loadInvoices()">
                 <ion-icon name="refresh-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
+    <ion-toolbar color="light" class="border-b border-slate-200">
+        <div class="px-2 py-1 flex gap-2">
+            <ion-searchbar [debounce]="300" (ionInput)="searchTerm.set($any($event).target.value || '')"
+                placeholder="Search Client or ID..." class="text-xs h-8 p-0" showCancelButton="never">
+            </ion-searchbar>
+            <ion-button (click)="showFilters.set(!showFilters())" fill="clear" size="small"
+                [color]="hasDateFilter() ? 'primary' : 'medium'">
+                <ion-icon name="calendar-outline"></ion-icon>
+            </ion-button>
+        </div>
+
+        <!-- Date Filters Expandable -->
+        <div *ngIf="showFilters()"
+            class="px-3 pb-3 pt-0 flex gap-2 animate-fade-in bg-slate-50 border-t border-slate-200">
+            <div class="flex-1">
+                <label class="text-[10px] uppercase font-bold text-slate-400">From</label>
+                <input type="date" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"
+                    class="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs font-bold text-slate-700">
+            </div>
+            <div class="flex-1">
+                <label class="text-[10px] uppercase font-bold text-slate-400">To</label>
+                <input type="date" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)"
+                    class="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs font-bold text-slate-700">
+            </div>
+            <div class="flex items-end pb-0.5">
+                <ion-button (click)="startDate.set(null); endDate.set(null); showFilters.set(false)" fill="clear"
+                    color="danger" size="small">
+                    <ion-icon name="close-circle"></ion-icon>
+                </ion-button>
+            </div>
+        </div>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content class="bg-slate-50">
-    <div class="max-w-md mx-auto p-4">
+    <!-- Stats Banner -->
+    <div *ngIf="filteredInvoices().length > 0 && !selectionMode()"
+        class="bg-indigo-50 border-b border-indigo-100 p-2 flex justify-between items-center text-xs px-4">
+        <span class="text-indigo-600 font-bold uppercase tracking-wide">Total Revenue</span>
+        <span class="text-indigo-900 font-black text-sm">{{ totalRevenue() | currency:'INR' }}</span>
+    </div>
+
+    <!-- Bulk Actions Banner -->
+    <div *ngIf="selectionMode()"
+        class="bg-slate-800 text-white p-3 flex justify-between items-center sticky top-0 z-10 shadow-md">
+        <span class="text-xs font-bold uppercase tracking-wide px-2">{{ selectedIds().size }} Selected</span>
+        <div class="flex gap-2">
+            <button (click)="selectAll()"
+                class="text-xs font-bold text-indigo-200 hover:text-white uppercase px-2">All</button>
+            <button (click)="deleteSelected()" [disabled]="selectedIds().size === 0"
+                class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded shadow-sm disabled:opacity-50">
+                Delete
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto p-4 pb-20">
 
         <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-12 space-y-4">
             <ion-spinner name="crescent" color="primary"></ion-spinner>
             <div class="text-slate-500 text-sm">Loading invoices...</div>
         </div>
 
-        <div *ngIf="!isLoading() && invoices().length === 0"
+        <div *ngIf="!isLoading() && filteredInvoices().length === 0"
             class="flex flex-col items-center justify-center py-16 text-center">
             <div class="bg-indigo-50 p-4 rounded-full mb-4">
-                <ion-icon name="document-text-outline" class="text-3xl text-indigo-400"></ion-icon>
+                <ion-icon name="search-outline" class="text-3xl text-indigo-400"></ion-icon>
             </div>
             <h3 class="text-slate-800 font-medium text-lg">No Invoices Found</h3>
-            <p class="text-slate-500 text-sm mt-1 max-w-[200px]">Create your first invoice to see it here.</p>
-            <ion-button routerLink="/invoice-entry" class="mt-6" mode="ios">
-                Create Invoice
+            <p class="text-slate-500 text-sm mt-1 max-w-[200px]">Try adjusting your search or filters.</p>
+            <ion-button (click)="searchTerm.set(''); startDate.set(null); endDate.set(null)" class="mt-4" fill="outline"
+                size="small">
+                Clear Filters
             </ion-button>
         </div>
 
-        <div *ngIf="!isLoading() && invoices().length > 0" class="space-y-3">
-            <ion-card *ngFor="let invoice of invoices()"
-                class="m-0 shadow-sm border border-slate-100 rounded-xl bg-white">
-                <div class="p-4">
+        <div *ngIf="!isLoading() && filteredInvoices().length > 0" class="space-y-3">
+            <ion-card *ngFor="let invoice of filteredInvoices()"
+                (click)="selectionMode() ? toggleSelection(invoice.id) : null"
+                class="m-0 shadow-sm border border-slate-100 rounded-xl bg-white relative overflow-visible active:scale-[0.99] transition-transform duration-100"
+                [class.ring-2]="selectedIds().has(invoice.id)" [class.ring-indigo-500]="selectedIds().has(invoice.id)">
+
+                <!-- Selection Checkbox Overlay -->
+                <div *ngIf="selectionMode()" class="absolute -left-2 top-1/2 -translate-y-1/2 z-20">
+                    <div class="bg-white rounded-full p-1 shadow-md border border-slate-100">
+                        <ion-icon [name]="selectedIds().has(invoice.id) ? 'checkmark-circle' : 'ellipse-outline'"
+                            [color]="selectedIds().has(invoice.id) ? 'primary' : 'medium'" class="text-xl"></ion-icon>
+                    </div>
+                </div>
+
+                <div class="p-4" [class.pl-8]="selectionMode()">
                     <div class="flex justify-between items-start mb-2">
                         <div>
-                            <div class="text-xs font-semibold text-indigo-600 uppercase tracking-wide">INV
-                                #{{invoice.id}}</div>
-                            <div class="text-lg font-bold text-slate-800">{{invoice.client?.name || 'Unknown Client'}}
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-[10px] font-black text-indigo-600 uppercase tracking-wider bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">
+                                    INV-{{ invoice.id }}
+                                </span>
+                                <span class="text-[10px] font-bold text-slate-400">{{ invoice.date | date:'dd MMM'
+                                    }}</span>
                             </div>
+                            <div class="text-base font-bold text-slate-800 mt-1 leading-tight">{{invoice.client?.name ||
+                                'Unknown Client'}}</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-lg font-bold text-slate-900">{{ invoice.total | currency:'INR' }}</div>
-                            <div class="text-xs text-slate-500">{{ invoice.date | date:'mediumDate' }}</div>
+                            <div class="text-lg font-black text-slate-800">{{ invoice.total | currency:'INR' }}</div>
                         </div>
                     </div>
 
-                    <div class="flex items-center space-x-2 my-3">
-                        <ion-chip [color]="getStatusColor(invoice.paymentStatus)" class="m-0 h-6 text-xs font-medium">
-                            {{ invoice.paymentStatus || 'Pending' }}
-                        </ion-chip>
-                        <span *ngIf="invoice.items?.length" class="text-xs text-slate-400">
-                            {{ invoice.items.length }} {{ invoice.items.length === 1 ? 'item' : 'items' }}
-                        </span>
-                    </div>
+                    <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
+                        <div class="flex items-center gap-2">
+                            <ion-chip [color]="getStatusColor(invoice.paymentStatus)"
+                                class="m-0 h-5 px-2 text-[10px] font-bold uppercase tracking-wide">
+                                {{ invoice.paymentStatus || 'Pending' }}
+                            </ion-chip>
+                            <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                                <ion-icon name="list"></ion-icon> {{ invoice.items?.length || 0 }} Items
+                            </span>
+                        </div>
 
-                    <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-50">
-                        <ion-button fill="clear" size="small" (click)="editInvoice(invoice)" class="text-indigo-600">
-                            <ion-icon name="create-outline" slot="start"></ion-icon>
-                            Edit
-                        </ion-button>
-                        <ion-button fill="clear" size="small" color="danger" (click)="deleteInvoice(invoice.id)">
-                            <ion-icon name="trash-outline" slot="start"></ion-icon>
-                            Delete
-                        </ion-button>
+                        <div *ngIf="!selectionMode()" class="flex gap-2">
+                            <button (click)="editInvoice(invoice)"
+                                class="bg-slate-100 text-slate-600 p-1.5 rounded-full hover:bg-slate-200">
+                                <ion-icon name="create" class="text-xs"></ion-icon>
+                            </button>
+                            <button (click)="deleteInvoice(invoice.id)"
+                                class="bg-red-50 text-red-500 p-1.5 rounded-full hover:bg-red-100">
+                                <ion-icon name="trash" class="text-xs"></ion-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </ion-card>
         </div>
-
     </div>
+
+    <!-- FAB for New Invoice (Only show when not selecting) -->
+    <ion-fab *ngIf="!selectionMode()" vertical="bottom" horizontal="end" slot="fixed" class="mb-4 mr-2">
+        <ion-fab-button routerLink="/invoice-entry" color="primary">
+            <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
 </ion-content>

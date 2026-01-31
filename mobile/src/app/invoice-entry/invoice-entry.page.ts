@@ -281,7 +281,7 @@ export class InvoiceEntryPage implements OnInit {
                 this.loadInvoiceForEdit(inv);
                 this.api.invoiceToEdit.set(null);
             }
-        }, { allowSignalWrites: true });
+        });
 
         effect(() => {
             const inv = this.api.invoiceToClone();
@@ -289,7 +289,7 @@ export class InvoiceEntryPage implements OnInit {
                 this.loadInvoiceForClone(inv);
                 this.api.invoiceToClone.set(null);
             }
-        }, { allowSignalWrites: true });
+        });
     }
 
     ngOnInit() {

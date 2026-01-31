@@ -13,6 +13,9 @@
             </span>
         </div>
         <ion-buttons slot="end" class="gap-0 pr-1">
+            <ion-button (click)="printEstimate()" fill="clear" size="small" class="text-slate-600">
+                <ion-icon slot="icon-only" name="print-outline"></ion-icon>
+            </ion-button>
             <ion-button (click)="saveEstimate()" color="primary" fill="solid" size="small" shape="round"
                 class="font-bold text-xs shadow-sm h-7 min-h-0 ml-1">
                 Save

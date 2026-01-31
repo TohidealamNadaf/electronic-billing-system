@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed, ChangeDetectionStrategy, effect, H
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
+import { PdfService } from '../services/pdf.service';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { IonicModule } from '@ionic/angular';
@@ -115,7 +116,7 @@ export class EstimateEntryPage implements OnInit {
         return (this.subTotal() - this.discountAmount()) + this.taxTotal();
     });
 
-    constructor(private api: ApiService, private router: Router) {
+    constructor(private api: ApiService, private router: Router, private pdfService: PdfService) {
         effect(() => {
             const est = this.api.estimateToEdit();
             if (est) {
@@ -243,6 +244,30 @@ export class EstimateEntryPage implements OnInit {
             newItems[index] = { ...item, quantity: quantity, total: item.price * quantity };
             return newItems;
         });
+    }
+
+    async printEstimate() {
+        if (!this.estimateDate() || this.items().length === 0) {
+            alert('Add items to print.');
+            return;
+        }
+
+        const currentData = {
+            id: this.editEstimateId() || 'DRAFT',
+            clientId: this.selectedClientId(),
+            date: this.estimateDate(),
+            items: this.items(),
+            subTotal: this.subTotal(),
+            taxTotal: this.taxTotal(),
+            total: this.grandTotal(),
+            discountAmount: this.discountAmount(),
+            gstEnabled: !!this.settings()?.isGstEnabled,
+            client: this.selectedClient() || { name: 'Client' },
+            customColumns: JSON.stringify(this.customColumns()),
+            columnLabels: JSON.stringify(this.columnLabels())
+        };
+
+        await this.pdfService.generateEstimatePdf(currentData, this.settings());
     }
 
     saveEstimate() {

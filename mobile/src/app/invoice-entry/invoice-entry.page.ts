@@ -609,7 +609,17 @@ export class InvoiceEntryPage implements OnInit {
 
     // Legacy method - remove or keep as alias
     async openPdfPreview(invoice: any, event?: Event) {
-        this.printInvoice();
+        if (invoice && invoice.items) {
+            // Use saved/passed invoice data
+            const pdfData = {
+                ...invoice,
+                client: invoice.client || { name: this.getClientName(invoice.clientId) }
+            };
+            await this.pdfService.generateInvoicePdf(pdfData, this.settings());
+        } else {
+            // Fallback to form data
+            this.printInvoice();
+        }
     }
 
     closeView() {

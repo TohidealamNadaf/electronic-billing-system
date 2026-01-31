@@ -1,34 +1,28 @@
-<ion-content>
-    <div class="max-w-7xl mx-auto space-y-4 animate-fade-in pb-8 no-print p-4">
-
-        <!-- Top Action Bar -->
-        <div class="flex items-center justify-between border-b border-slate-200 pb-4 mb-2">
-            <div class="flex items-center gap-3">
-                <ion-buttons class="lg:hidden">
-                    <ion-menu-button color="dark"></ion-menu-button>
-                </ion-buttons>
-                <h2 class="text-xl font-display font-bold text-slate-900">
-                    {{ editEstimateId() ? 'Edit Estimate' : 'New Estimate' }}
-                </h2>
-                <span class="w-px h-4 bg-slate-300"></span>
-                <div class="flex items-center gap-2">
-                    <span
-                        class="uppercase tracking-wider font-bold text-[10px] text-primary-700 bg-primary-50 px-2 py-0.5 rounded border border-primary-200">
-                        {{ editEstimateId() ? 'Editing' : 'Draft' }}
-                    </span>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button (click)="saveEstimate()"
-                    class="flex items-center gap-1.5 px-4 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded hover:bg-slate-900 shadow-sm active:translate-y-0 active:scale-95 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                        stroke="currentColor" class="w-3.5 h-3.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                    Save Estimate
-                </button>
-            </div>
+<ion-header class="ion-no-border">
+    <ion-toolbar color="white" class="border-b border-slate-200">
+        <ion-buttons slot="start">
+            <ion-menu-button color="dark"></ion-menu-button>
+        </ion-buttons>
+        <div class="flex items-center gap-2">
+            <ion-title class="font-display font-bold text-lg text-slate-900 px-0">
+                {{ editEstimateId() ? 'Edit Estimate' : 'Estimate' }}
+            </ion-title>
+            <span
+                class="px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 text-[10px] font-bold uppercase tracking-wider border border-primary-200">
+                {{ editEstimateId() ? 'Editing' : 'Draft' }}
+            </span>
         </div>
+        <ion-buttons slot="end" class="gap-0 pr-1">
+            <ion-button (click)="saveEstimate()" color="primary" fill="solid" size="small"
+                class="font-bold text-xs shadow-sm h-7 min-h-0 ml-1">
+                Save
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg-slate-50">
+    <div class="max-w-7xl mx-auto space-y-4 animate-fade-in pb-20 no-print p-3">
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <!-- Left Column: Details & Items -->

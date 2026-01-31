@@ -307,7 +307,7 @@ export class PdfService {
                 const result = await Filesystem.writeFile({
                     path: fileName,
                     data: encoded,
-                    directory: Directory.Documents,
+                    directory: Directory.Cache, // Use Cache for temporary sharing
                 });
 
                 await Share.share({

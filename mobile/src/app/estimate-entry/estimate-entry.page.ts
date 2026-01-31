@@ -293,4 +293,9 @@ export class EstimateEntryPage implements OnInit {
         }));
         this.items.set(mappedItems);
     }
+
+    parseDate(value: any): Date {
+        if (!value) return new Date();
+        return new Date(value);
+    }
 }

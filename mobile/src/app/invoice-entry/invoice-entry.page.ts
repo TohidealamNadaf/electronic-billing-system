@@ -503,15 +503,7 @@ export class InvoiceEntryPage implements OnInit {
         }
     }
 
-    async printInvoice() {
-        if (!this.selectedClientId() || this.items().length === 0) {
-            alert('Please select a client and add at least one item.');
-            return;
-        }
 
-        alert('Print functionality is not yet available on mobile. Please save the invoice and print from the desktop application.');
-        this.saveInvoice();
-    }
 
     viewInvoice(invoice: any) {
         this.selectedInvoice.set(invoice);

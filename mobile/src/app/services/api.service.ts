@@ -102,7 +102,7 @@ export class ApiService {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const invValues = [
-            invoice.clientId, invoice.date, invoice.total, invoice.subTotal, invoice.taxTotal,
+            invoice.clientId, invoice.date instanceof Date ? invoice.date.toISOString() : invoice.date, invoice.total, invoice.subTotal, invoice.taxTotal,
             invoice.gstEnabled ? 1 : 0, invoice.gstRate, invoice.discountAmount, invoice.paidAmount,
             invoice.balanceAmount, invoice.paymentStatus,
             invoice.showPaymentDetails ? 1 : 0, invoice.isSimpleInvoice ? 1 : 0,
@@ -150,7 +150,7 @@ export class ApiService {
             WHERE id=?
         `;
         const invValues = [
-            invoice.clientId, invoice.date, invoice.total, invoice.subTotal, invoice.taxTotal,
+            invoice.clientId, invoice.date instanceof Date ? invoice.date.toISOString() : invoice.date, invoice.total, invoice.subTotal, invoice.taxTotal,
             invoice.gstEnabled ? 1 : 0, invoice.gstRate, invoice.discountAmount, invoice.paidAmount,
             invoice.balanceAmount, invoice.paymentStatus,
             invoice.showPaymentDetails ? 1 : 0, invoice.isSimpleInvoice ? 1 : 0,
@@ -285,7 +285,7 @@ export class ApiService {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const estValues = [
-            estimate.clientId, estimate.date, estimate.total, estimate.subTotal, estimate.taxTotal,
+            estimate.clientId, estimate.date instanceof Date ? estimate.date.toISOString() : estimate.date, estimate.total, estimate.subTotal, estimate.taxTotal,
             estimate.gstEnabled ? 1 : 0, estimate.gstRate, estimate.discountAmount,
             estimate.showPaymentDetails ? 1 : 0,
             JSON.stringify(estimate.columnLabels), JSON.stringify(estimate.customColumns)
@@ -325,7 +325,7 @@ export class ApiService {
             WHERE id=?
         `;
         const estValues = [
-            estimate.clientId, estimate.date, estimate.total, estimate.subTotal, estimate.taxTotal,
+            estimate.clientId, estimate.date instanceof Date ? estimate.date.toISOString() : estimate.date, estimate.total, estimate.subTotal, estimate.taxTotal,
             estimate.gstEnabled ? 1 : 0, estimate.gstRate, estimate.discountAmount,
             estimate.showPaymentDetails ? 1 : 0,
             JSON.stringify(estimate.columnLabels), JSON.stringify(estimate.customColumns),

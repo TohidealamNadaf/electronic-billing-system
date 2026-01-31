@@ -284,7 +284,7 @@ export class PdfService {
     }
 
     private async createAndSharePdf(docDefinition: any, fileName: string) {
-        pdfMake.createPdf(docDefinition).getBase64(async (encoded) => {
+        pdfMake.createPdf(docDefinition).getBase64(async (encoded: string) => {
             try {
                 const result = await Filesystem.writeFile({
                     path: fileName,

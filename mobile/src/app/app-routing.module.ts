@@ -19,6 +19,22 @@ const routes: Routes = [
     loadComponent: () => import('./product-management/product-management.page').then(m => m.ProductManagementPage)
   },
   {
+    path: 'invoice-history',
+    loadComponent: () => import('./invoice-history/invoice-history.page').then(m => m.InvoiceHistoryPage)
+  },
+  {
+    path: 'estimate-entry',
+    loadComponent: () => import('./estimate-entry/estimate-entry.page').then(m => m.EstimateEntryPage)
+  },
+  {
+    path: 'estimate-history',
+    loadComponent: () => import('./estimate-history/estimate-history.page').then(m => m.EstimateHistoryPage)
+  },
+  {
+    path: 'settings',
+    loadComponent: () => import('./settings/settings.page').then(m => m.SettingsPage)
+  },
+  {
     path: '',
     redirectTo: 'invoice-entry',
     pathMatch: 'full'

@@ -1,0 +1,139 @@
+<ion-header class="ion-no-border">
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title class="font-display font-medium">{{ editEstimateId() ? 'Edit Estimate' : 'New Estimate'
+            }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="saveEstimate()">
+                <ion-icon name="checkmark-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg-slate-50">
+    <div class="max-w-md mx-auto p-4 space-y-4">
+
+        <!-- Client Selection -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Client</label>
+            <ng-select [items]="clients()" bindLabel="name" bindValue="id" placeholder="Select Client"
+                [ngModel]="selectedClientId()" (ngModelChange)="selectedClientId.set($event)" class="custom-select">
+            </ng-select>
+
+            <div class="mt-4">
+                <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Date</label>
+                <!-- Using Ionic Datetime for mobile friendliness -->
+                <ion-datetime-button datetime="datetime"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                        <ion-datetime id="datetime" presentation="date" #dt [value]="estimateDate().toISOString()"
+                            (ionChange)="estimateDate.set(parseDate(dt.value))"></ion-datetime>
+                    </ng-template>
+                </ion-modal>
+            </div>
+        </div>
+
+        <!-- Items -->
+        <div class="space-y-3">
+            <div *ngFor="let item of items(); let i = index"
+                class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 relative">
+                <div class="absolute top-2 right-2">
+                    <ion-button fill="clear" size="small" color="danger" (click)="removeItem(i)">
+                        <ion-icon name="close-outline"></ion-icon>
+                    </ion-button>
+                </div>
+
+                <div class="mb-3 pr-8">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Product / Service</label>
+                    <ng-select [items]="products()" bindLabel="name" [addTag]="true"
+                        placeholder="Select or Type Product" [ngModel]="item.productId"
+                        (ngModelChange)="onProductChange(i, $event)" class="custom-select-sm">
+                    </ng-select>
+                </div>
+
+                <div class="flex space-x-3">
+                    <div class="w-1/3">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Qty</label>
+                        <input type="number" [ngModel]="item.quantity" (ngModelChange)="updateQuantity(i, $event)"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 font-bold text-center">
+                    </div>
+                    <div class="w-1/3">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Price</label>
+                        <input type="number" [ngModel]="item.price" (ngModelChange)="updatePrice(i, $event)"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-right">
+                    </div>
+                    <div class="w-1/3">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Total</label>
+                        <div
+                            class="w-full h-[38px] flex items-center justify-end px-3 text-slate-700 font-bold bg-slate-50 rounded-lg border border-transparent">
+                            {{ item.total | number:'1.0-0' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <ion-button expand="block" fill="outline" (click)="addItem()" class="dashed-border-btn mt-2">
+                <ion-icon name="add-outline" slot="start"></ion-icon>
+                Add Item
+            </ion-button>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+            <div class="flex justify-between py-2 text-slate-600">
+                <span>Subtotal</span>
+                <span class="font-medium">{{ subTotal() | currency:'INR' }}</span>
+            </div>
+
+            <div class="flex justify-between items-center py-2 text-slate-600">
+                <span>Discount</span>
+                <input type="number" [ngModel]="discountAmount()" (ngModelChange)="discountAmount.set($event)"
+                    class="w-24 bg-slate-50 border border-slate-200 rounded px-2 py-1 text-right text-sm focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div *ngIf="settings()?.isGstEnabled"
+                class="flex justify-between py-2 text-slate-600 border-t border-dashed border-slate-200 mt-2">
+                <span>GST ({{settings()?.gstRate}})</span>
+                <span class="font-medium text-orange-600">+ {{ taxTotal() | currency:'INR' }}</span>
+            </div>
+
+            <div class="flex justify-between py-3 mt-2 border-t border-slate-100 items-baseline">
+                <span class="text-lg font-bold text-slate-800">Total</span>
+                <span class="text-2xl font-bold text-indigo-600">{{ grandTotal() | currency:'INR' }}</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="h-20"></div> <!-- Spacer -->
+
+    <!-- Custom Name Modal -->
+    <ion-modal [isOpen]="editNameState().isOpen" (didDismiss)="closeNameEdit()" [initialBreakpoint]="0.4"
+        [breakpoints]="[0, 0.4]">
+        <ng-template>
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4 text-slate-800">Edit Product Name</h3>
+                <div class="bg-slate-50 p-4 rounded-lg mb-4 text-sm text-slate-500">
+                    You can rename this item for this estimate only.
+                </div>
+                <input #nameInput type="text" [ngModel]="editNameState().name"
+                    (ngModelChange)="updateCustomName($event)"
+                    class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500 mb-4"
+                    placeholder="Product Name">
+                <ion-button expand="block" (click)="saveCustomName()">Save Name</ion-button>
+            </div>
+        </ng-template>
+    </ion-modal>
+
+</ion-content>
+
+<ion-footer class="ion-no-border bg-white border-t border-slate-100">
+    <div class="p-3">
+        <ion-button expand="block" (click)="saveEstimate()" class="gradient-btn font-bold">
+            Draft Estimate
+        </ion-button>
+    </div>
+</ion-footer>

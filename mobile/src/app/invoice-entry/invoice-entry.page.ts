@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed, ChangeDetectionStrategy, effect, H
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
+import { PdfService } from '../services/pdf.service';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { IonicModule } from '@ionic/angular';
@@ -273,7 +274,7 @@ export class InvoiceEntryPage implements OnInit {
         }
     }
 
-    constructor(private api: ApiService) {
+    constructor(private api: ApiService, private pdfService: PdfService) {
         effect(() => {
             const inv = this.api.invoiceToEdit();
             if (inv) {
@@ -592,9 +593,31 @@ export class InvoiceEntryPage implements OnInit {
         this.items.set(mappedItems);
     }
 
+    async printInvoice() {
+        if (!this.invoiceDate() || this.items().length === 0) {
+            alert('Add items to print.');
+            return;
+        }
+
+        const currentData = {
+            id: this.editInvoiceId() || 'DRAFT',
+            clientId: this.selectedClientId(),
+            date: this.invoiceDate(),
+            items: this.items(),
+            subTotal: this.subTotal(),
+            taxTotal: this.taxTotal(),
+            total: this.grandTotal(),
+            discountAmount: this.discountAmount(),
+            gstEnabled: !!this.settings()?.isGstEnabled,
+            client: this.selectedClient() || { name: 'Client' }
+        };
+
+        await this.pdfService.generateInvoicePdf(currentData, this.settings());
+    }
+
+    // Legacy method - remove or keep as alias
     async openPdfPreview(invoice: any, event?: Event) {
-        if (event) event.stopPropagation();
-        alert('PDF Preview is not yet availble on mobile.');
+        this.printInvoice();
     }
 
     closeView() {

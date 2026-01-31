@@ -1,2 +1,96 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Dark Mode Global Colors */
+        --ion-color-primary: #3880ff;
+        --ion-color-primary-rgb: 56, 128, 255;
+        --ion-color-primary-contrast: #ffffff;
+        --ion-color-primary-contrast-rgb: 255, 255, 255;
+        --ion-color-primary-shade: #3171e0;
+        --ion-color-primary-tint: #4c8dff;
+
+        --ion-background-color: #0f172a;
+        /* Slate 900 */
+        --ion-background-color-rgb: 15, 23, 42;
+
+        --ion-text-color: #f1f5f9;
+        /* Slate 100 */
+        --ion-text-color-rgb: 241, 245, 249;
+
+        --ion-border-color: #334155;
+        /* Slate 700 */
+
+        --ion-color-step-50: #1e293b;
+        --ion-color-step-100: #334155;
+        --ion-color-step-150: #475569;
+        --ion-color-step-200: #64748b;
+        --ion-color-step-250: #94a3b8;
+        --ion-color-step-300: #cbd5e1;
+        --ion-color-step-350: #e2e8f0;
+        --ion-color-step-400: #f1f5f9;
+        --ion-color-step-450: #f8fafc;
+        --ion-color-step-500: #ffffff;
+        --ion-color-step-550: #ffffff;
+        --ion-color-step-600: #ffffff;
+        --ion-color-step-650: #ffffff;
+        --ion-color-step-700: #ffffff;
+        --ion-color-step-750: #ffffff;
+        --ion-color-step-800: #ffffff;
+        --ion-color-step-850: #ffffff;
+        --ion-color-step-900: #ffffff;
+        --ion-color-step-950: #ffffff;
+
+        --ion-item-background: #1e293b;
+        /* Slate 800 */
+        --ion-card-background: #1e293b;
+    }
+
+    /* Tailwind Dark Mode Overrides */
+    .bg-white {
+        background-color: #1e293b !important;
+    }
+
+    .bg-slate-50 {
+        background-color: #0f172a !important;
+    }
+
+    .text-slate-900 {
+        color: #f8fafc !important;
+    }
+
+    .text-slate-800 {
+        color: #f1f5f9 !important;
+    }
+
+    .text-slate-700 {
+        color: #e2e8f0 !important;
+    }
+
+    .text-slate-600 {
+        color: #cbd5e1 !important;
+    }
+
+    .text-slate-500 {
+        color: #94a3b8 !important;
+    }
+
+    .border-slate-100 {
+        border-color: #334155 !important;
+    }
+
+    .border-slate-200 {
+        border-color: #334155 !important;
+    }
+
+    /* Inputs */
+    input,
+    select,
+    textarea,
+    .ng-select-container {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+        border-color: #334155 !important;
+    }
+}

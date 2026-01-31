@@ -1,32 +1,65 @@
 <ion-app>
-  <ion-menu contentId="main-content" type="overlay">
-    <ion-header>
-      <ion-toolbar color="primary">
-        <ion-title>Billing App</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
-      <ion-list lines="none">
+  <ion-menu contentId="main-content" type="overlay" class="custom-menu">
+    <ion-content class="ion-no-padding">
+      <div
+        class="menu-header bg-gradient-to-br from-indigo-600 to-blue-700 p-6 flex flex-col justify-end h-40 text-white">
+        <div class="font-display font-bold text-2xl tracking-tight">Billing App</div>
+        <div class="text-indigo-100 text-sm mt-1 opacity-90">Mobile Edition</div>
+      </div>
+
+      <div class="py-2">
         <ion-menu-toggle auto-hide="false">
-          <ion-item routerLink="/invoice-entry" routerDirection="root" class="mb-2">
-            <ion-icon slot="start" name="document-text-outline"></ion-icon>
-            <ion-label>New Invoice</ion-label>
+          <ion-item routerLink="/invoice-entry" routerDirection="root" lines="none" detail="false"
+            class="menu-item transition-colors" routerLinkActive="selected-item">
+            <ion-icon slot="start" name="add-circle-outline" class="text-xl"></ion-icon>
+            <ion-label class="font-medium">New Invoice</ion-label>
           </ion-item>
-          <ion-item routerLink="/client-management" routerDirection="root" class="mb-2">
-            <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-label>Clients</ion-label>
+
+          <ion-item routerLink="/invoice-history" routerDirection="root" lines="none" detail="false"
+            class="menu-item transition-colors" routerLinkActive="selected-item">
+            <ion-icon slot="start" name="time-outline" class="text-xl"></ion-icon>
+            <ion-label class="font-medium">Invoice History</ion-label>
           </ion-item>
-          <ion-item routerLink="/product-management" routerDirection="root" class="mb-2">
-            <ion-icon slot="start" name="cube-outline"></ion-icon>
-            <ion-label>Products</ion-label>
+
+          <ion-item routerLink="/estimate-entry" routerDirection="root" lines="none" detail="false"
+            class="menu-item transition-colors" routerLinkActive="selected-item">
+            <ion-icon slot="start" name="document-text-outline" class="text-xl"></ion-icon>
+            <ion-label class="font-medium">New Estimate</ion-label>
+          </ion-item>
+
+          <ion-item routerLink="/estimate-history" routerDirection="root" lines="none" detail="false"
+            class="menu-item transition-colors" routerLinkActive="selected-item">
+            <ion-icon slot="start" name="folder-open-outline" class="text-xl"></ion-icon>
+            <ion-label class="font-medium">Estimate History</ion-label>
+          </ion-item>
+
+          <div class="h-px bg-slate-100 my-2 mx-4"></div>
+
+          <ion-item routerLink="/client-management" routerDirection="root" lines="none" detail="false"
+            class="menu-item transition-colors" routerLinkActive="selected-item">
+            <ion-icon slot="start" name="people-outline" class="text-xl"></ion-icon>
+            <ion-label class="font-medium">Clients</ion-label>
+          </ion-item>
+
+          <ion-item routerLink="/product-management" routerDirection="root" lines="none" detail="false"
+            class="menu-item transition-colors" routerLinkActive="selected-item">
+            <ion-icon slot="start" name="cube-outline" class="text-xl"></ion-icon>
+            <ion-label class="font-medium">Products</ion-label>
+          </ion-item>
+
+          <ion-item routerLink="/settings" routerDirection="root" lines="none" detail="false"
+            class="menu-item transition-colors" routerLinkActive="selected-item">
+            <ion-icon slot="start" name="settings-outline" class="text-xl"></ion-icon>
+            <ion-label class="font-medium">Settings</ion-label>
           </ion-item>
         </ion-menu-toggle>
-      </ion-list>
+      </div>
     </ion-content>
-    <ion-footer>
-      <ion-toolbar>
-        <ion-title size="small" class="text-xs text-center text-slate-400">v1.0.0</ion-title>
-      </ion-toolbar>
+
+    <ion-footer class="ion-no-border">
+      <div class="p-4 text-center text-xs text-slate-400">
+        v1.0.0
+      </div>
     </ion-footer>
   </ion-menu>
   <ion-router-outlet id="main-content"></ion-router-outlet>

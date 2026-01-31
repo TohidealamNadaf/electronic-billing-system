@@ -9,6 +9,8 @@ import { DatabaseService } from './services/database.service';
   standalone: false,
 })
 export class AppComponent {
+  isAppReady = false;
+
   constructor(private platform: Platform, private databaseService: DatabaseService) {
     this.initializeApp();
   }
@@ -17,6 +19,7 @@ export class AppComponent {
     this.platform.ready().then(async () => {
       await this.databaseService.initializePlugin();
       console.log('Database initialized');
+      this.isAppReady = true;
     });
   }
 }

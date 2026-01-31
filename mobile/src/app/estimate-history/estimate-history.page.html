@@ -1,51 +1,55 @@
 <ion-header class="ion-no-border">
-    <ion-toolbar color="primary">
+    <ion-toolbar color="white" class="border-b border-slate-200">
         <ion-buttons slot="start">
-            <ion-menu-button></ion-menu-button>
+            <ion-menu-button color="dark"></ion-menu-button>
         </ion-buttons>
-        <ion-title class="font-display font-medium text-sm">
+        <ion-title class="font-display font-bold text-lg text-slate-900 px-0">
             Estimate History
-            <span *ngIf="filteredEstimates().length > 0" class="ml-2 bg-white/20 px-2 py-0.5 rounded text-xs">{{
+            <span *ngIf="filteredEstimates().length > 0"
+                class="ml-2 bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px] align-middle">{{
                 filteredEstimates().length }}</span>
         </ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="toggleSelectionMode()">
+            <ion-button (click)="toggleSelectionMode()" color="dark">
                 <ion-icon [name]="selectionMode() ? 'close-circle-outline' : 'checkbox-outline'"></ion-icon>
             </ion-button>
-            <ion-button (click)="loadEstimates()">
+            <ion-button (click)="loadEstimates()" color="dark">
                 <ion-icon name="refresh-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
-    <ion-toolbar color="light" class="border-b border-slate-200">
-        <div class="px-2 py-1 flex gap-2">
-            <ion-searchbar [debounce]="300" (ionInput)="searchTerm.set($any($event).target.value || '')"
-                placeholder="Search Client or ID..." class="text-xs h-8 p-0" showCancelButton="never">
-            </ion-searchbar>
+    <ion-toolbar color="white" class="border-b border-slate-200">
+        <div class="px-3 py-2 flex gap-2">
+            <div class="relative flex-1">
+                <ion-icon name="search-outline"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></ion-icon>
+                <input type="text" [value]="searchTerm()" (input)="searchTerm.set($any($event).target.value)"
+                    placeholder="Search Client or ID..."
+                    class="w-full bg-slate-50 border border-slate-200 rounded-full pl-9 pr-4 py-1.5 text-xs font-bold text-slate-700 outline-none focus:ring-1 focus:ring-primary-500 transition-shadow">
+            </div>
             <ion-button (click)="showFilters.set(!showFilters())" fill="clear" size="small"
-                [color]="hasDateFilter() ? 'primary' : 'medium'">
-                <ion-icon name="calendar-outline"></ion-icon>
+                [color]="hasDateFilter() ? 'primary' : 'medium'" class="m-0">
+                <ion-icon slot="icon-only" name="filter-circle-outline" class="text-xl"></ion-icon>
             </ion-button>
         </div>
 
         <!-- Date Filters Expandable -->
-        <div *ngIf="showFilters()"
-            class="px-3 pb-3 pt-0 flex gap-2 animate-fade-in bg-slate-50 border-t border-slate-200">
+        <div *ngIf="showFilters()" class="px-4 pb-4 pt-1 flex gap-3 animate-fade-in bg-white">
             <div class="flex-1">
-                <label class="text-[10px] uppercase font-bold text-slate-400">From</label>
+                <label class="text-[10px] uppercase font-bold text-slate-400 mb-1 block">From</label>
                 <input type="date" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"
-                    class="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs font-bold text-slate-700">
+                    class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-primary-500">
             </div>
             <div class="flex-1">
-                <label class="text-[10px] uppercase font-bold text-slate-400">To</label>
+                <label class="text-[10px] uppercase font-bold text-slate-400 mb-1 block">To</label>
                 <input type="date" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)"
-                    class="w-full bg-white border border-slate-200 rounded px-2 py-1.5 text-xs font-bold text-slate-700">
+                    class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-primary-500">
             </div>
             <div class="flex items-end pb-0.5">
-                <ion-button (click)="startDate.set(null); endDate.set(null); showFilters.set(false)" fill="clear"
-                    color="danger" size="small">
-                    <ion-icon name="close-circle"></ion-icon>
-                </ion-button>
+                <button (click)="startDate.set(null); endDate.set(null); showFilters.set(false)"
+                    class="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors">
+                    <ion-icon name="close-circle" class="text-lg"></ion-icon>
+                </button>
             </div>
         </div>
     </ion-toolbar>

@@ -36,6 +36,12 @@ export class EstimateEntryPage implements OnInit {
 
     discountAmount = signal(0);
 
+    selectedClient = computed(() => {
+        const id = this.selectedClientId();
+        if (!id) return null;
+        return this.clients().find(c => c.id == id);
+    });
+
     editEstimateId = signal<number | null>(null);
 
     // Custom Name Modal State

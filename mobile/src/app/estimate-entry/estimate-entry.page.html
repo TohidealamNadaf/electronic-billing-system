@@ -13,7 +13,7 @@
             </span>
         </div>
         <ion-buttons slot="end" class="gap-0 pr-1">
-            <ion-button (click)="saveEstimate()" color="primary" fill="solid" size="small"
+            <ion-button (click)="saveEstimate()" color="primary" fill="solid" size="small" shape="round"
                 class="font-bold text-xs shadow-sm h-7 min-h-0 ml-1">
                 Save
             </ion-button>
@@ -38,9 +38,10 @@
                         <div>
                             <label
                                 class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Customer</label>
-                            <ng-select [items]="clients()" bindLabel="name" bindValue="id" [searchable]="true"
-                                [clearable]="true" placeholder="Select Client..." class="text-sm"
-                                [ngModel]="selectedClientId()" (ngModelChange)="selectedClientId.set($event)">
+                            <ng-select #clientSelect [items]="clients()" bindLabel="name" bindValue="id"
+                                [searchable]="true" [clearable]="true" placeholder="Select Client..." class="text-sm"
+                                [ngModel]="selectedClientId()" (ngModelChange)="selectedClientId.set($event)"
+                                (change)="clientSelect.blur()">
                             </ng-select>
                         </div>
                         <div>
@@ -53,6 +54,31 @@
                                 [ngModel]="estimateDate()" (ngModelChange)="estimateDate.set($event)">
                         </div>
                     </div>
+
+                    <!-- Custom Client Fields Display -->
+                    @if (selectedClient(); as client) {
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-x-6 gap-y-2">
+                        @if (client.email) {
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">Email</span>
+                            <span class="text-xs text-slate-600 font-medium">{{ client.email }}</span>
+                        </div>
+                        }
+                        @if (client.phone) {
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">Phone</span>
+                            <span class="text-xs text-slate-600 font-medium">{{ client.phone }}</span>
+                        </div>
+                        }
+                        @if (client.address) {
+                        <div class="flex flex-col max-w-xs">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">Address</span>
+                            <span class="text-xs text-slate-600 font-medium truncate" title="{{client.address}}">{{
+                                client.address }}</span>
+                        </div>
+                        }
+                    </div>
+                    }
                 </div>
 
                 <!-- Line Items Card -->

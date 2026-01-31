@@ -15,7 +15,7 @@
             <ion-button (click)="printInvoice()" fill="clear" size="small" class="text-slate-600">
                 <ion-icon slot="icon-only" name="print-outline"></ion-icon>
             </ion-button>
-            <ion-button (click)="saveInvoice()" color="primary" fill="solid" size="small"
+            <ion-button (click)="saveInvoice()" color="primary" fill="solid" size="small" shape="round"
                 class="font-bold text-xs shadow-sm h-7 min-h-0 ml-1">
                 Save
             </ion-button>
@@ -40,9 +40,10 @@
                         <div>
                             <label
                                 class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Customer</label>
-                            <ng-select [items]="clients()" bindLabel="name" bindValue="id" [searchable]="true"
-                                [clearable]="true" placeholder="Select Client..." class="text-sm"
-                                [ngModel]="selectedClientId()" (ngModelChange)="selectedClientId.set($event)">
+                            <ng-select #clientSelect [items]="clients()" bindLabel="name" bindValue="id"
+                                [searchable]="true" [clearable]="true" placeholder="Select Client..." class="text-sm"
+                                [ngModel]="selectedClientId()" (ngModelChange)="selectedClientId.set($event)"
+                                (change)="clientSelect.blur()">
                             </ng-select>
                         </div>
                         <div>

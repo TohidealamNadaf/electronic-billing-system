@@ -72,14 +72,14 @@ export function Dashboard() {
     }
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount).replace('$', '₹')
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount)
     }
 
     return (
         <div className="flex flex-col min-h-full pb-4">
             {/* Header */}
-            <header className="px-4 py-4 safe-area-top bg-primary text-white">
-                <h1 className="text-xl font-bold pt-2.5">
+            <header className="px-4 pt-[5px] pb-4 safe-area-top bg-primary text-white">
+                <h1 className="text-xl font-bold">
                     {settings.companyName || "My Company"}
                 </h1>
 
@@ -208,27 +208,29 @@ export function Dashboard() {
                 ) : (
                     <div className="space-y-1.5">
                         {stats.recentInvoices.map((invoice) => (
-                            <Card key={invoice.id} className="border-0 shadow-sm">
-                                <CardContent className="p-2.5">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-                                                <FileText className="w-3 h-3 text-primary" />
+                            <Link key={invoice.id} to={`/invoices/${invoice.id}`} className="block">
+                                <Card className="border-0 shadow-sm hover:bg-muted/50 transition-colors">
+                                    <CardContent className="p-2.5">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                                                    <FileText className="w-3 h-3 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-medium leading-none">{invoice.invoiceNumber}</p>
+                                                    <p className="text-[10px] text-muted-foreground mt-0.5">{invoice.clientName}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-xs font-medium leading-none">{invoice.invoiceNumber}</p>
-                                                <p className="text-[10px] text-muted-foreground mt-0.5">{invoice.clientName}</p>
+                                            <div className="text-right">
+                                                <p className="text-xs font-semibold">{formatCurrency(invoice.total)}</p>
+                                                <span className="text-[9px] px-1.5 py-0.5 rounded font-medium bg-muted text-muted-foreground">
+                                                    {invoice.status}
+                                                </span>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-xs font-semibold">{formatCurrency(invoice.total)}</p>
-                                            <span className="text-[9px] px-1.5 py-0.5 rounded font-medium bg-muted text-muted-foreground">
-                                                {invoice.status}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                    </CardContent>
+                                </Card>
+                            </Link>
                         ))}
                     </div>
                 )}

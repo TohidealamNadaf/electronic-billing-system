@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Save, Trash2, ArrowUp, ArrowDown, Info, Calculator } from "lucide-react"
+import { Trash2, ArrowUp, ArrowDown, Info, Calculator } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -37,7 +37,7 @@ interface CustomColumn {
 
 // --- Main Component ---
 
-export default function SettingsPage() {
+export function SettingsPage() {
     const { settings, loading, updateSettings } = useSettings()
     const [activeTab, setActiveTab] = useState('profile')
     const [saving, setSaving] = useState(false)

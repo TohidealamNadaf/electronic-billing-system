@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'Mobile-Billing/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 jobs:

@@ -263,6 +263,7 @@
 .est-t-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 1.5mm 0;
     font-size: 11px;
 }

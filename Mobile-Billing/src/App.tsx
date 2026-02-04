@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom"
 import { MobileShell } from "@/components/mobile-shell"
+import { ThemeProvider } from "@/components/theme-provider"
 import { useDatabase } from "@/DatabaseContext"
 import Clients from "@/pages/Clients/index.tsx"
 import { Dashboard } from "@/pages/Dashboard.tsx"
@@ -33,16 +34,18 @@ function App() {
   }
 
   return (
-    <MobileShell>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/clients/*" element={<Clients />} />
-        <Route path="/products/*" element={<Products />} />
-        <Route path="/invoices/*" element={<Invoices />} />
-        <Route path="/estimates/*" element={<Estimates />} />
-        <Route path="/settings/*" element={<Settings />} />
-      </Routes>
-    </MobileShell>
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <MobileShell>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/clients/*" element={<Clients />} />
+          <Route path="/products/*" element={<Products />} />
+          <Route path="/invoices/*" element={<Invoices />} />
+          <Route path="/estimates/*" element={<Estimates />} />
+          <Route path="/settings/*" element={<Settings />} />
+        </Routes>
+      </MobileShell>
+    </ThemeProvider>
   )
 }
 

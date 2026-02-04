@@ -101,7 +101,8 @@
 .top-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    /* Changed from flex-start to center */
     padding-bottom: 4mm;
     border-bottom: 2px solid var(--c-primary);
     margin-bottom: 4mm;
@@ -131,6 +132,10 @@
     font-size: 14px;
     font-weight: 800;
     letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: fit-content;
 }
 
 /* Meta Bar */
@@ -365,6 +370,8 @@
 .total-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    /* Ensure items align vertically */
     padding: 1mm 0;
     font-size: 11.5px;
 }
@@ -391,6 +398,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    /* Already correct, but validating */
 }
 
 .grand-total-box .label {

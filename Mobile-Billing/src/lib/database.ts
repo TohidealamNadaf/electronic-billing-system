@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacitor-community/sqlite';
+import { generateUUID } from './utils';
 
 export class DatabaseService {
   private static instance: DatabaseService;
@@ -193,7 +194,7 @@ export class DatabaseService {
       ];
 
       for (const s of defaultSettings) {
-        await this.db.run("INSERT INTO settings (id, key, value) VALUES (?, ?, ?)", [crypto.randomUUID(), s.key, s.value]);
+        await this.db.run("INSERT INTO settings (id, key, value) VALUES (?, ?, ?)", [generateUUID(), s.key, s.value]);
       }
     }
   }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { useDatabase } from "@/DatabaseContext"
+import { generateUUID } from "@/lib/utils"
 
 export interface AppSettings {
     companyName?: string
@@ -68,7 +69,7 @@ export function useSettings() {
                         [key]
                     )
 
-                    if (existing.values && existing.values.length > 0) {
+                    if (existing && existing.values && existing.values.length > 0) {
                         const id = existing.values[0].id
                         await db.run(
                             "UPDATE settings SET value = ? WHERE id = ?",
@@ -77,7 +78,7 @@ export function useSettings() {
                     } else {
                         await db.run(
                             "INSERT INTO settings (id, key, value) VALUES (?, ?, ?)",
-                            [crypto.randomUUID(), key, value]
+                            [generateUUID(), key, value]
                         )
                     }
                 }

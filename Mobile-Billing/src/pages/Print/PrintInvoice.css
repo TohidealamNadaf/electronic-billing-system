@@ -261,7 +261,7 @@
     padding: 2mm 2mm;
     /* Compact Rows to fit 15+ */
     border-bottom: 1px solid var(--c-border);
-    vertical-align: top;
+    vertical-align: middle;
     color: var(--c-text);
 }
 

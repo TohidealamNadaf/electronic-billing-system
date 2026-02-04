@@ -78,20 +78,20 @@ export function Dashboard() {
     return (
         <div className="flex flex-col min-h-full pb-4">
             {/* Header */}
-            <header className="px-4 pt-10 pb-4 bg-primary text-primary-foreground">
-                <h1 className="text-base font-semibold">
-                    {settings.companyName || "Nadaf Furniture"}
+            <header className="px-4 py-4 safe-area-top bg-primary text-white">
+                <h1 className="text-xl font-bold pt-2.5">
+                    {settings.companyName || "My Company"}
                 </h1>
 
-                <div className="mt-3 flex items-end justify-between">
+                <div className="mt-4 flex items-end justify-between">
                     <div>
-                        <p className="text-[10px] uppercase tracking-wide opacity-70">Revenue</p>
-                        <p className="text-2xl font-bold">
+                        <p className="text-[10px] uppercase tracking-wide opacity-80 mb-0.5">Revenue</p>
+                        <p className="text-3xl font-bold leading-none">
                             {formatCurrency(stats.paidAmount)}
                         </p>
                     </div>
                     <div className="text-right">
-                        <p className="text-[10px] uppercase tracking-wide opacity-70">Pending</p>
+                        <p className="text-[10px] uppercase tracking-wide opacity-80 mb-0.5">Pending</p>
                         <p className="text-sm font-medium opacity-90">
                             {formatCurrency(stats.pendingAmount)}
                         </p>
@@ -121,7 +121,7 @@ export function Dashboard() {
             <div className="px-4 pt-4">
                 <div className="grid grid-cols-4 gap-2">
                     <Link to="/invoices">
-                        <Card className="border-0 shadow-sm">
+                        <Card className="border-0 shadow-sm hover:bg-muted/50 transition-colors">
                             <CardContent className="p-2.5 text-center">
                                 <FileText className="w-4 h-4 text-primary mx-auto mb-1" />
                                 <p className="text-lg font-semibold leading-none">{stats.invoicesCount}</p>
@@ -130,7 +130,7 @@ export function Dashboard() {
                         </Card>
                     </Link>
                     <Link to="/estimates">
-                        <Card className="border-0 shadow-sm">
+                        <Card className="border-0 shadow-sm hover:bg-muted/50 transition-colors">
                             <CardContent className="p-2.5 text-center">
                                 <FileCheck className="w-4 h-4 text-chart-2 mx-auto mb-1" />
                                 <p className="text-lg font-semibold leading-none">{stats.estimatesCount}</p>
@@ -139,7 +139,7 @@ export function Dashboard() {
                         </Card>
                     </Link>
                     <Link to="/clients">
-                        <Card className="border-0 shadow-sm">
+                        <Card className="border-0 shadow-sm hover:bg-muted/50 transition-colors">
                             <CardContent className="p-2.5 text-center">
                                 <Users className="w-4 h-4 text-chart-3 mx-auto mb-1" />
                                 <p className="text-lg font-semibold leading-none">{stats.clientsCount}</p>
@@ -148,7 +148,7 @@ export function Dashboard() {
                         </Card>
                     </Link>
                     <Link to="/products">
-                        <Card className="border-0 shadow-sm">
+                        <Card className="border-0 shadow-sm hover:bg-muted/50 transition-colors">
                             <CardContent className="p-2.5 text-center">
                                 <Package className="w-4 h-4 text-chart-4 mx-auto mb-1" />
                                 <p className="text-lg font-semibold leading-none">{stats.productsCount}</p>

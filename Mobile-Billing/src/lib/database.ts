@@ -178,6 +178,7 @@ export class DatabaseService {
       CREATE TABLE IF NOT EXISTS settings (
         id TEXT PRIMARY KEY,
         key TEXT UNIQUE NOT NULL,
+        value TEXT
       );
     `);
 

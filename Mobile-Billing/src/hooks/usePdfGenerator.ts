@@ -1,71 +1,66 @@
 import { useState } from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
+import { pdf } from '@react-pdf/renderer';
+import { createElement } from 'react';
+import { InvoicePdf } from '../pdf/InvoicePdf';
+import { EstimatePdf } from '../pdf/EstimatePdf';
 
 export function usePdfGenerator() {
     const [isGenerating, setIsGenerating] = useState(false);
 
-    const generateAndShare = async (elementId: string, filename: string) => {
+    // Updated signature: we now pass DATA, not DOM ID
+    // type: 'invoice' | 'estimate'
+    const generateAndShare = async (type: 'invoice' | 'estimate', data: any, settings: any, filename: string) => {
         try {
             setIsGenerating(true);
-            const element = document.getElementById(elementId);
-            if (!element) {
-                console.error("Element not found:", elementId);
-                return;
+
+            let doc;
+            if (type === 'invoice') {
+                doc = createElement(InvoicePdf, { invoice: data, items: data.items || [], settings });
+            } else {
+                doc = createElement(EstimatePdf, { estimate: data, items: data.items || [], settings });
             }
 
-            // High resolution capture
-            const canvas = await html2canvas(element, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            });
-
-            const imgData = canvas.toDataURL('image/png');
-
-            // A4 Dimensions: 210mm x 297mm
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const imgWidth = 210;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            // @ts-ignore
+            const blob = await pdf(doc).toBlob();
 
             if (Capacitor.getPlatform() === 'web') {
                 // Web: Download directly
-                pdf.save(`${filename}.pdf`);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${filename}.pdf`;
+                a.click();
+                URL.revokeObjectURL(url);
             } else {
-                // Mobile: Save to file and share
-                const pdfBase64 = pdf.output('datauristring').split(',')[1];
+                // Mobile: Convert blob to base64
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = async () => {
+                    const base64data = (reader.result as string).split(',')[1];
+                    const path = `${filename}.pdf`;
 
-                const path = `${filename}.pdf`;
+                    await Filesystem.writeFile({
+                        path: path,
+                        data: base64data,
+                        directory: Directory.Cache,
+                        // encoding: Encoding.UTF8 // Not needed for base64 data
+                    });
 
-                await Filesystem.writeFile({
-                    path: path,
-                    data: pdfBase64,
-                    directory: Directory.Cache,
-                    // encoding: Encoding.UTF8 // Correct for base64 is not UTF8
-                });
+                    const fileUri = await Filesystem.getUri({
+                        path: path,
+                        directory: Directory.Cache
+                    });
 
-                const fileUri = await Filesystem.getUri({
-                    path: path,
-                    directory: Directory.Cache
-                });
-
-                await Share.share({
-                    title: `Share ${filename}`,
-                    text: `Here is your ${filename}`,
-                    url: fileUri.uri,
-                    dialogTitle: 'Share PDF'
-                });
+                    await Share.share({
+                        title: `Share ${filename}`,
+                        text: `Here is your ${filename}`,
+                        url: fileUri.uri,
+                        dialogTitle: 'Share PDF'
+                    });
+                };
             }
 
         } catch (error) {

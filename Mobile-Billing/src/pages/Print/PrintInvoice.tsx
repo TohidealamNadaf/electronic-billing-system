@@ -78,16 +78,32 @@ export function PrintInvoice({ data, settingsData }: { data?: any, settingsData?
     }
 
     const getCustomColumns = () => {
-        try {
-            const cols = settings.customColumns ? JSON.parse(settings.customColumns) : [];
-            if (cols.length > 0) return cols;
-        } catch { }
-        return [
+        const standardCols = [
             { id: 'product', name: 'Description', isBuiltIn: true },
             { id: 'quantity', name: 'Qty', isBuiltIn: true },
             { id: 'price', name: 'Unit Price', isBuiltIn: true },
             { id: 'total', name: 'Total', isBuiltIn: true }
         ]
+
+        try {
+            const cols = settings.customColumns ? JSON.parse(settings.customColumns) : [];
+            if (cols.length > 0) {
+                // If the saved columns don't include 'product', it implies we only saved custom ones.
+                // We need to merge them.
+                const hasProduct = cols.some((c: any) => c.id === 'product');
+                if (!hasProduct) {
+                    // Insert custom columns between Product and Quantity (or at end if simplified)
+                    // For simplicity, let's just insert them before 'quantity'
+                    return [
+                        standardCols[0], // Product
+                        ...cols,         // Custom Columns
+                        ...standardCols.slice(1) // Qty, Price, Total
+                    ];
+                }
+                return cols;
+            }
+        } catch { }
+        return standardCols;
     }
 
     const evaluateFormula = (formula: string, item: any): number => {

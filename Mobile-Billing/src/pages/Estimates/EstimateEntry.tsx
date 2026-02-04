@@ -9,7 +9,6 @@ import { useDatabase } from "@/DatabaseContext"
 import { ClientSelector } from "@/components/client-selector"
 import { ProductSelector } from "@/components/product-selector"
 import { usePdfGenerator } from "@/hooks/usePdfGenerator"
-import { PrintEstimate } from "../Print/PrintEstimate"
 import { Share2 } from "lucide-react"
 // import { cn } from "@/lib/utils"
 // import { cn } from "@/lib/utils"
@@ -211,7 +210,7 @@ export function EstimateEntry() {
     }, [db])
 
     const handleSharePdf = async () => {
-        await generateAndShare('estimate-print-hidden', `Estimate-${formData.estimateNumber}`)
+        await generateAndShare('estimate', { ...formData, items }, companySettings, `Estimate-${formData.estimateNumber}`);
     }
 
     const addItem = (product: any) => {
@@ -286,30 +285,25 @@ export function EstimateEntry() {
                     </Button>
                     <h1 className="text-lg font-semibold">{isNew ? "New Estimate" : "Edit Estimate"}</h1>
                 </div>
-                {!isNew && (
-                    <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={handleSharePdf} disabled={isGenerating} className="text-primary hover:text-primary" title="Share PDF">
-                            {isGenerating ? <span className="text-[10px]">...</span> : <Share2 className="w-5 h-5" />}
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={handleConvertToInvoice} className="text-primary hover:text-primary" title="Convert to Invoice">
-                            <FileCheck className="w-5 h-5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={handleDelete} className="text-destructive hover:text-destructive">
-                            <Trash className="w-5 h-5" />
-                        </Button>
-                    </div>
-                )}
+                <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={handleSharePdf} disabled={isGenerating} className="text-primary hover:text-primary" title="Share PDF">
+                        {isGenerating ? <span className="text-[10px]">...</span> : <Share2 className="w-5 h-5" />}
+                    </Button>
+                    {!isNew && (
+                        <>
+                            <Button variant="ghost" size="icon" onClick={handleConvertToInvoice} className="text-primary hover:text-primary" title="Convert to Invoice">
+                                <FileCheck className="w-5 h-5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={handleDelete} className="text-destructive hover:text-destructive">
+                                <Trash className="w-5 h-5" />
+                            </Button>
+                        </>
+                    )}
+                </div>
             </header>
 
             {/* Hidden Print Container */}
-            <div style={{ position: 'absolute', top: -9999, left: -9999, width: '210mm' }}>
-                <div id="estimate-print-hidden">
-                    <PrintEstimate
-                        data={{ ...formData, items }}
-                        settingsData={companySettings}
-                    />
-                </div>
-            </div>
+            {/* Hidden Print Container Removed (Using React-PDF) */}
 
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
                 {/* Client Section */}
@@ -403,7 +397,7 @@ export function EstimateEntry() {
                                                 ) : (
                                                     <input
                                                         type={col.type === 'number' ? 'number' : 'text'}
-                                                        className="w-full bg-muted/50 border rounded px-1 py-0.5"
+                                                        className="w-full bg-muted/50 border rounded px-2 py-1.5"
                                                         value={item.customValues?.[col.name] || ''}
                                                         onChange={e => updateCustomValue(item.id, col.name, e.target.value)}
                                                         placeholder={col.name}

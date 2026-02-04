@@ -78,16 +78,28 @@ export function PrintEstimate({ data, settingsData }: { data?: any, settingsData
     }
 
     const getCustomColumns = () => {
-        try {
-            const cols = settings.customColumns ? JSON.parse(settings.customColumns) : [];
-            if (cols.length > 0) return cols;
-        } catch { }
-        return [
+        const standardCols = [
             { id: 'product', name: 'Item', isBuiltIn: true },
             { id: 'quantity', name: 'Qty', isBuiltIn: true },
             { id: 'price', name: 'Rate', isBuiltIn: true },
             { id: 'total', name: 'Amount', isBuiltIn: true }
         ]
+
+        try {
+            const cols = settings.customColumns ? JSON.parse(settings.customColumns) : [];
+            if (cols.length > 0) {
+                const hasProduct = cols.some((c: any) => c.id === 'product');
+                if (!hasProduct) {
+                    return [
+                        standardCols[0],
+                        ...cols,
+                        ...standardCols.slice(1)
+                    ];
+                }
+                return cols;
+            }
+        } catch { }
+        return standardCols;
     }
 
     const evaluateFormula = (formula: string, item: any): number => {

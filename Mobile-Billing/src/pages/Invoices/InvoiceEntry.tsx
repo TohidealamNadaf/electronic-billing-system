@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, Save, Trash, Plus, Minus } from "lucide-react"
+import { ArrowLeft, Save, Trash, Plus, Minus, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,8 +9,8 @@ import { useDatabase } from "@/DatabaseContext"
 import { ClientSelector } from "@/components/client-selector"
 import { ProductSelector } from "@/components/product-selector"
 import { usePdfGenerator } from "@/hooks/usePdfGenerator"
-import { PrintInvoice } from "../Print/PrintInvoice"
-import { Share2 } from "lucide-react"
+
+
 
 interface LineItem {
     id: string
@@ -49,7 +49,7 @@ export function InvoiceEntry() {
     useEffect(() => {
         if (isNew) {
             // Generate number
-            setFormData(prev => ({ ...prev, invoiceNumber: `INV-${Date.now().toString().slice(-6)}` }))
+            setFormData(prev => ({ ...prev, invoiceNumber: `INV - ${Date.now().toString().slice(-6)} ` }))
         } else if (db) {
             loadInvoice()
         }
@@ -141,7 +141,6 @@ export function InvoiceEntry() {
     const [companySettings, setCompanySettings] = useState<any>({})
 
     const [customColumns, setCustomColumns] = useState<any[]>([])
-    const [columnLabels, setColumnLabels] = useState<any>({})
 
     const loadSettings = async () => {
         if (!db) return
@@ -177,9 +176,7 @@ export function InvoiceEntry() {
     }, [db])
 
     const handleSharePdf = async () => {
-        // Ensure data is up to date (we use the current formData + items)
-        // Delay slightly to ensure render if needed, though hidden div keeps it sync
-        await generateAndShare('invoice-print-hidden', `Invoice-${formData.invoiceNumber}`)
+        await generateAndShare('invoice', { ...formData, items }, companySettings, `Invoice - ${formData.invoiceNumber}`);
     }
 
     const addItem = (product: any) => {
@@ -255,27 +252,20 @@ export function InvoiceEntry() {
                     </Button>
                     <h1 className="text-lg font-semibold">{isNew ? "New Invoice" : "Edit Invoice"}</h1>
                 </div>
-                {!isNew && (
-                    <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={handleSharePdf} disabled={isGenerating} className="text-primary hover:text-primary" title="Share PDF">
-                            {isGenerating ? <span className="text-[10px]">...</span> : <Share2 className="w-5 h-5" />}
-                        </Button>
+                <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={handleSharePdf} disabled={isGenerating} className="text-primary hover:text-primary" title="Share PDF">
+                        {isGenerating ? <span className="text-[10px]">...</span> : <Share2 className="w-5 h-5" />}
+                    </Button>
+                    {!isNew && (
                         <Button variant="ghost" size="icon" onClick={handleDelete} className="text-destructive hover:text-destructive">
                             <Trash className="w-5 h-5" />
                         </Button>
-                    </div>
-                )}
+                    )}
+                </div>
             </header>
 
             {/* Hidden Print Container */}
-            <div style={{ position: 'absolute', top: -9999, left: -9999, width: '210mm' }}>
-                <div id="invoice-print-hidden">
-                    <PrintInvoice
-                        data={{ ...formData, items }}
-                        settingsData={companySettings}
-                    />
-                </div>
-            </div>
+            {/* Hidden Print Container Removed (Using React-PDF) */}
 
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
                 {/* Client Section */}
@@ -360,7 +350,7 @@ export function InvoiceEntry() {
                                                     ) : (
                                                         <input
                                                             type={col.type === 'number' ? 'number' : 'text'}
-                                                            className="w-full bg-muted/50 border rounded px-1 py-0.5"
+                                                            className="w-full bg-muted/50 border rounded px-2 py-1.5"
                                                             value={item.customValues?.[col.name] || ''}
                                                             onChange={e => updateCustomValue(item.id, col.name, e.target.value)}
                                                             placeholder={col.name}

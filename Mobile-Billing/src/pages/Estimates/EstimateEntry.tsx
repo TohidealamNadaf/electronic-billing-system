@@ -21,6 +21,7 @@ interface LineItem {
     quantity: number
     price: number
     total: number
+    customValues: Record<string, any>
 }
 
 export function EstimateEntry() {
@@ -73,7 +74,13 @@ export function EstimateEntry() {
 
                 // Load items
                 const itemsRes = await db.query("SELECT * FROM estimate_items WHERE estimateId = ?", [id])
-                if (itemsRes.values) itemsSet(itemsRes.values as LineItem[])
+                if (itemsRes.values) {
+                    const parsedItems = itemsRes.values.map((item: any) => ({
+                        ...item,
+                        customValues: item.customValues ? JSON.parse(item.customValues) : {}
+                    }))
+                    itemsSet(parsedItems)
+                }
             }
         } catch (error) {
             console.error("Error loading estimate:", error)
@@ -107,8 +114,8 @@ export function EstimateEntry() {
 
             for (const item of items) {
                 await db.run(
-                    "INSERT INTO estimate_items (id, estimateId, productId, productName, quantity, price, total) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    [item.id || crypto.randomUUID(), estimateId, item.productId, item.productName, item.quantity, item.price, item.total]
+                    "INSERT INTO estimate_items (id, estimateId, productId, productName, quantity, price, total, customValues) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    [item.id || crypto.randomUUID(), estimateId, item.productId, item.productName, item.quantity, item.price, item.total, JSON.stringify(item.customValues || {})]
                 )
             }
 
@@ -146,8 +153,8 @@ export function EstimateEntry() {
             // Copy Items
             for (const item of items) {
                 await db.run(
-                    "INSERT INTO invoice_items (id, invoiceId, productId, productName, quantity, price, total) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    [crypto.randomUUID(), invoiceId, item.productId, item.productName, item.quantity, item.price, item.total]
+                    "INSERT INTO invoice_items (id, invoiceId, productId, productName, quantity, price, total, customValues) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    [crypto.randomUUID(), invoiceId, item.productId, item.productName, item.quantity, item.price, item.total, JSON.stringify(item.customValues || {})]
                 )
             }
 
@@ -168,6 +175,9 @@ export function EstimateEntry() {
     const { generateAndShare, isGenerating } = usePdfGenerator()
     const [companySettings, setCompanySettings] = useState<any>({})
 
+    const [customColumns, setCustomColumns] = useState<any[]>([])
+    // const [columnLabels, setColumnLabels] = useState<any>({})
+
     const loadSettings = async () => {
         if (!db) return
         const setRes = await db.query("SELECT * FROM settings")
@@ -177,6 +187,22 @@ export function EstimateEntry() {
                 settingsMap[s.key] = s.value
             })
             setCompanySettings(settingsMap)
+
+            // Parse Custom Columns
+            try {
+                let cols = settingsMap.customColumns ? JSON.parse(settingsMap.customColumns) : []
+                if (cols.length === 0) {
+                    cols = [
+                        { id: 'product', isBuiltIn: true },
+                        { id: 'quantity', isBuiltIn: true },
+                        { id: 'price', isBuiltIn: true },
+                        { id: 'total', isBuiltIn: true }
+                    ]
+                }
+                setCustomColumns(cols)
+            } catch (e) {
+                console.warn("Failed to parse custom columns", e)
+            }
         }
     }
 
@@ -195,7 +221,8 @@ export function EstimateEntry() {
             productName: product.name,
             quantity: 1,
             price: product.price,
-            total: product.price
+            total: product.price,
+            customValues: {}
         }
         itemsSet([...items, newItem])
         setAddingProduct(false)
@@ -206,6 +233,25 @@ export function EstimateEntry() {
             if (item.id === itemId) {
                 const q = Math.max(1, item.quantity + delta)
                 return { ...item, quantity: q, total: q * item.price }
+            }
+            return item
+        }))
+    }
+
+    const evaluateFormula = (formula: string, item: LineItem): number => {
+        try {
+            const clean = formula.replace(/price/g, String(item.price)).replace(/qty/g, String(item.quantity)).replace(/[^0-9+\-*/().]/g, '')
+            return (new Function('return ' + clean))() || 0
+        } catch { return 0 }
+    }
+
+    const updateCustomValue = (itemId: string, colId: string, value: any) => {
+        itemsSet(items.map(item => {
+            if (item.id === itemId) {
+                return {
+                    ...item,
+                    customValues: { ...item.customValues, [colId]: value }
+                }
             }
             return item
         }))
@@ -346,6 +392,26 @@ export function EstimateEntry() {
                                             </Button>
                                         </div>
                                     </CardContent>
+                                    <div className="pt-2 grid grid-cols-2 gap-2 mt-2 border-t text-xs pb-3 px-3">
+                                        {customColumns.filter(c => !c.isBuiltIn).map(col => (
+                                            <div key={col.id} className="flex flex-col gap-1">
+                                                <span className="text-[10px] uppercase text-muted-foreground font-bold">{col.name}</span>
+                                                {col.type === 'calculated' ? (
+                                                    <div className="p-1 bg-muted rounded font-mono font-bold">
+                                                        {col.isCurrency ? '₹' : ''}{evaluateFormula(col.formula, item).toFixed(2)}
+                                                    </div>
+                                                ) : (
+                                                    <input
+                                                        type={col.type === 'number' ? 'number' : 'text'}
+                                                        className="w-full bg-muted/50 border rounded px-1 py-0.5"
+                                                        value={item.customValues?.[col.name] || ''}
+                                                        onChange={e => updateCustomValue(item.id, col.name, e.target.value)}
+                                                        placeholder={col.name}
+                                                    />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </Card>
                             ))
                         )}

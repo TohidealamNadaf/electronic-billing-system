@@ -178,9 +178,18 @@ export class DatabaseService {
       CREATE TABLE IF NOT EXISTS settings (
         id TEXT PRIMARY KEY,
         key TEXT UNIQUE NOT NULL,
-        value TEXT
       );
     `);
+
+    // --- Schema Migrations ---
+    // Add customValues to older schemas
+    try {
+      await this.db.execute("ALTER TABLE invoice_items ADD COLUMN customValues TEXT;");
+    } catch (e) { /* Column likely exists */ }
+
+    try {
+      await this.db.execute("ALTER TABLE estimate_items ADD COLUMN customValues TEXT;");
+    } catch (e) { /* Column likely exists */ }
 
     // Seed Default Settings if empty
     const settingsCount = await this.db.query("SELECT COUNT(*) as count FROM settings");

@@ -49,6 +49,14 @@ export function ProductSelector({ onSelect, onCancel }: ProductSelectorProps) {
                 <Button variant="ghost" onClick={onCancel}>Cancel</Button>
             </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                {search && (
+                    <Card onClick={() => onSelect({ id: '', name: search, price: 0, unit: 'unit' })} className="cursor-pointer hover:bg-accent border-dashed">
+                        <CardContent className="p-3 flex items-center gap-3 text-primary">
+                            <Plus className="w-5 h-5" />
+                            <div className="font-medium">Add "{search}"</div>
+                        </CardContent>
+                    </Card>
+                )}
                 {filtered.map(product => (
                     <Card key={product.id} onClick={() => onSelect(product)} className="cursor-pointer hover:bg-accent">
                         <CardContent className="p-3 flex items-center justify-between">
@@ -58,7 +66,7 @@ export function ProductSelector({ onSelect, onCancel }: ProductSelectorProps) {
                                 </div>
                                 <div>
                                     <p className="font-medium">{product.name}</p>
-                                    <p className="text-xs text-muted-foreground">${product.price}/{product.unit}</p>
+                                    <p className="text-xs text-muted-foreground">{product.price > 0 ? `₹${product.price}/${product.unit}` : 'Custom Price'}</p>
                                 </div>
                             </div>
                             <Plus className="w-4 h-4 text-muted-foreground" />

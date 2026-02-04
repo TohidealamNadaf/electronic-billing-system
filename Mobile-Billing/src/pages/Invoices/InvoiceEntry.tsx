@@ -19,6 +19,7 @@ interface LineItem {
     quantity: number
     price: number
     total: number
+    customValues: Record<string, any>
 }
 
 export function InvoiceEntry() {
@@ -71,7 +72,13 @@ export function InvoiceEntry() {
 
                 // Load items
                 const itemsRes = await db.query("SELECT * FROM invoice_items WHERE invoiceId = ?", [id])
-                if (itemsRes.values) itemsSet(itemsRes.values as LineItem[])
+                if (itemsRes.values) {
+                    const parsedItems = itemsRes.values.map((item: any) => ({
+                        ...item,
+                        customValues: item.customValues ? JSON.parse(item.customValues) : {}
+                    }))
+                    itemsSet(parsedItems)
+                }
             }
         } catch (error) {
             console.error("Error loading invoice:", error)
@@ -105,8 +112,8 @@ export function InvoiceEntry() {
 
             for (const item of items) {
                 await db.run(
-                    "INSERT INTO invoice_items (id, invoiceId, productId, productName, quantity, price, total) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    [item.id || crypto.randomUUID(), invoiceId, item.productId, item.productName, item.quantity, item.price, item.total]
+                    "INSERT INTO invoice_items (id, invoiceId, productId, productName, quantity, price, total, customValues) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    [item.id || crypto.randomUUID(), invoiceId, item.productId, item.productName, item.quantity, item.price, item.total, JSON.stringify(item.customValues || {})]
                 )
             }
 
@@ -133,6 +140,9 @@ export function InvoiceEntry() {
     const { generateAndShare, isGenerating } = usePdfGenerator()
     const [companySettings, setCompanySettings] = useState<any>({})
 
+    const [customColumns, setCustomColumns] = useState<any[]>([])
+    const [columnLabels, setColumnLabels] = useState<any>({})
+
     const loadSettings = async () => {
         if (!db) return
         const setRes = await db.query("SELECT * FROM settings")
@@ -142,6 +152,23 @@ export function InvoiceEntry() {
                 settingsMap[s.key] = s.value
             })
             setCompanySettings(settingsMap)
+
+            // Parse Custom Columns
+            try {
+                let cols = settingsMap.customColumns ? JSON.parse(settingsMap.customColumns) : []
+                // Normalize new vs old format if needed, similar to desktop
+                if (cols.length === 0) {
+                    cols = [
+                        { id: 'product', isBuiltIn: true },
+                        { id: 'quantity', isBuiltIn: true },
+                        { id: 'price', isBuiltIn: true },
+                        { id: 'total', isBuiltIn: true }
+                    ]
+                }
+                setCustomColumns(cols)
+            } catch (e) {
+                console.warn("Failed to parse custom columns", e)
+            }
         }
     }
 
@@ -162,7 +189,8 @@ export function InvoiceEntry() {
             productName: product.name,
             quantity: 1,
             price: product.price,
-            total: product.price
+            total: product.price,
+            customValues: {}
         }
         itemsSet([...items, newItem])
         setAddingProduct(false)
@@ -173,6 +201,26 @@ export function InvoiceEntry() {
             if (item.id === itemId) {
                 const q = Math.max(1, item.quantity + delta)
                 return { ...item, quantity: q, total: q * item.price }
+            }
+            return item
+        }))
+    }
+
+    // Helper for formulas
+    const evaluateFormula = (formula: string, item: LineItem): number => {
+        try {
+            const clean = formula.replace(/price/g, String(item.price)).replace(/qty/g, String(item.quantity)).replace(/[^0-9+\-*/().]/g, '')
+            return (new Function('return ' + clean))() || 0
+        } catch { return 0 }
+    }
+
+    const updateCustomValue = (itemId: string, colId: string, value: any) => {
+        itemsSet(items.map(item => {
+            if (item.id === itemId) {
+                return {
+                    ...item,
+                    customValues: { ...item.customValues, [colId]: value }
+                }
             }
             return item
         }))
@@ -300,6 +348,26 @@ export function InvoiceEntry() {
                                             <Button variant="ghost" size="icon" className="h-6 w-6 ml-2 text-destructive" onClick={() => removeItem(item.id)}>
                                                 <Trash className="w-3 h-3" />
                                             </Button>
+                                        </div>
+                                        <div className="pt-2 grid grid-cols-2 gap-2 mt-2 border-t text-xs">
+                                            {customColumns.filter(c => !c.isBuiltIn).map(col => (
+                                                <div key={col.id} className="flex flex-col gap-1">
+                                                    <span className="text-[10px] uppercase text-muted-foreground font-bold">{col.name}</span>
+                                                    {col.type === 'calculated' ? (
+                                                        <div className="p-1 bg-muted rounded font-mono font-bold">
+                                                            {col.isCurrency ? '₹' : ''}{evaluateFormula(col.formula, item).toFixed(2)}
+                                                        </div>
+                                                    ) : (
+                                                        <input
+                                                            type={col.type === 'number' ? 'number' : 'text'}
+                                                            className="w-full bg-muted/50 border rounded px-1 py-0.5"
+                                                            value={item.customValues?.[col.name] || ''}
+                                                            onChange={e => updateCustomValue(item.id, col.name, e.target.value)}
+                                                            placeholder={col.name}
+                                                        />
+                                                    )}
+                                                </div>
+                                            ))}
                                         </div>
                                     </CardContent>
                                 </Card>

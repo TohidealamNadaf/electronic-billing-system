@@ -77,6 +77,44 @@ export function PrintEstimate({ data, settingsData }: { data?: any, settingsData
         return `${year}${month}${day}`;
     }
 
+    const getCustomColumns = () => {
+        try {
+            const cols = settings.customColumns ? JSON.parse(settings.customColumns) : [];
+            if (cols.length > 0) return cols;
+        } catch { }
+        return [
+            { id: 'product', name: 'Item', isBuiltIn: true },
+            { id: 'quantity', name: 'Qty', isBuiltIn: true },
+            { id: 'price', name: 'Rate', isBuiltIn: true },
+            { id: 'total', name: 'Amount', isBuiltIn: true }
+        ]
+    }
+
+    const evaluateFormula = (formula: string, item: any): number => {
+        try {
+            const clean = formula.replace(/price/g, String(item.price)).replace(/qty/g, String(item.quantity)).replace(/[^0-9+\-*/().]/g, '')
+            return (new Function('return ' + clean))() || 0
+        } catch { return 0 }
+    }
+
+    const getColValue = (col: any, item: any) => {
+        if (col.id === 'product') return item.productName;
+        if (col.id === 'quantity') return item.quantity;
+        if (col.id === 'price') return formatCurrency(item.price);
+        if (col.id === 'total') return formatCurrency(item.total);
+
+        if (col.type === 'calculated') {
+            const val = evaluateFormula(col.formula, item);
+            return col.isCurrency ? formatCurrency(val) : val.toFixed(2);
+        }
+
+        let cv = item.customValues;
+        if (typeof cv === 'string') {
+            try { cv = JSON.parse(cv) } catch { cv = {} }
+        }
+        return cv?.[col.name] || '';
+    }
+
     return (
         <div className="est-print-wrapper" id="print-section">
             <div className="est-print-container">
@@ -120,26 +158,25 @@ export function PrintEstimate({ data, settingsData }: { data?: any, settingsData
                     </div>
                 </div>
 
-                {/* Items Table */}
                 <div className="est-table-section">
                     <table className="est-data-table">
                         <thead>
                             <tr>
-                                <th className="est-col-desc est-text-left">Item</th>
-                                <th className="est-col-qty est-text-center">Qty</th>
-                                <th className="est-col-price est-text-right">Rate</th>
-                                <th className="est-col-total est-text-right">Amount</th>
+                                {getCustomColumns().map((col: any) => (
+                                    <th key={col.id} className={`est-text-left ${col.id === 'quantity' ? 'est-text-center' : (col.id === 'price' || col.id === 'total' || col.type === 'calculated' ? 'est-text-right' : '')}`}>
+                                        {col.name}
+                                    </th>
+                                ))}
                             </tr>
                         </thead>
                         <tbody>
                             {items.map((item, i) => (
                                 <tr key={i} className={i % 2 !== 0 ? 'est-odd' : ''}>
-                                    <td className="est-col-desc est-text-left">
-                                        <div className="est-item-title">{item.productName}</div>
-                                    </td>
-                                    <td className="est-col-qty est-text-center">{item.quantity}</td>
-                                    <td className="est-col-price est-text-right">{formatCurrency(item.price)}</td>
-                                    <td className="est-col-total est-text-right est-font-bold">{formatCurrency(item.total)}</td>
+                                    {getCustomColumns().map((col: any) => (
+                                        <td key={col.id} className={`est-text-left ${col.id === 'quantity' ? 'est-text-center' : (col.id === 'price' || col.id === 'total' || col.type === 'calculated' ? 'est-text-right' : '')} ${col.id === 'total' ? 'est-font-bold' : ''}`}>
+                                            {col.id === 'product' ? <div className="est-item-title">{getColValue(col, item)}</div> : getColValue(col, item)}
+                                        </td>
+                                    ))}
                                 </tr>
                             ))}
                         </tbody>

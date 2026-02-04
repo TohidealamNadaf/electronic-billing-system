@@ -34,7 +34,10 @@ export function MobileShell({ children }: { children: ReactNode }) {
                 {children}
             </main>
 
-            <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t safe-area-bottom w-full max-w-md mx-auto">
+            <nav
+                className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t w-full max-w-md mx-auto"
+                style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 15px)' }}
+            >
                 <div className="flex items-center justify-around h-14">
                     {navItems.map((item) => {
                         const active = isActive(item.href)

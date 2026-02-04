@@ -26,30 +26,42 @@ export const InvoicePdf: React.FC<InvoicePdfProps> = ({ invoice, items, settings
         ];
 
         try {
-            const cols = settings.customColumns ? JSON.parse(settings.customColumns) : [];
-            if (cols.length > 0) {
-                const hasProduct = cols.some((c: any) => c.id === 'product');
-                if (!hasProduct) {
-                    // Insert custom columns
-                    // Distribute width roughly
-                    const customWidth = 20;
-                    // Adjust standard widths to make room
-                    const prodWidth = 30; // Reduced from 40
+            if (!settings.customColumns || settings.customColumns === '[]') return standardCols;
 
-                    // Remap standard with new widths
-                    const std = [
-                        { id: 'product', name: 'Description', isBuiltIn: true, width: `${prodWidth}%` },
-                        // Insert customs here
-                        ...cols.map((c: any) => ({ ...c, width: `${customWidth}%`, align: 'left' })),
-                        { id: 'quantity', name: 'Qty', isBuiltIn: true, width: '10%', align: 'center' },
-                        { id: 'price', name: 'Unit Price', isBuiltIn: true, width: '15%', align: 'right' },
-                        { id: 'total', name: 'Total', isBuiltIn: true, width: '15%', align: 'right' }
+            const cols = JSON.parse(settings.customColumns);
+            if (cols.length > 0) {
+                // If Custom Columns exist, we must use dynamic width to ensure 100% total
+                // 1. Identify if 'product' is in the custom list or needs to be added
+                const hasProduct = cols.some((c: any) => c.id === 'product');
+
+                // Fixed widths for standard fields (adjusted to be compact)
+                const wQty = 10;
+                const wPrice = 15;
+                const wTotal = 15;
+                const wProduct = 30; // Base width for product
+
+                if (!hasProduct) {
+                    // Standard Mode with Extra Columns:
+                    // We have Product (30%) + Qty (10%) + Price (15%) + Total (15%) = 70%
+                    // Remaining 30% is divided among custom columns
+                    const availableForCustom = 100 - (wProduct + wQty + wPrice + wTotal);
+                    const customColWidth = Math.max(10, availableForCustom / cols.length); // At least 10%
+
+                    return [
+                        { id: 'product', name: 'Description', isBuiltIn: true, width: `${wProduct}%` },
+                        ...cols.map((c: any) => ({ ...c, width: `${customColWidth}%`, align: 'left' })),
+                        { id: 'quantity', name: 'Qty', isBuiltIn: true, width: `${wQty}%`, align: 'center' },
+                        { id: 'price', name: 'Unit Price', isBuiltIn: true, width: `${wPrice}%`, align: 'right' },
+                        { id: 'total', name: 'Total', isBuiltIn: true, width: `${wTotal}%`, align: 'right' }
                     ];
-                    return std;
+                } else {
+                    // Fully Custom Mode: Use widths from settings or distribute evenly
+                    return cols.map((c: any) => ({ ...c, width: c.width || `${100 / cols.length}%`, align: c.align || 'left' }));
                 }
-                return cols.map((c: any) => ({ ...c, width: c.width || '20%', align: c.align || 'left' }));
             }
-        } catch { }
+        } catch (e) {
+            // Fallback
+        }
         return standardCols;
     };
 
@@ -164,15 +176,21 @@ export const InvoicePdf: React.FC<InvoicePdfProps> = ({ invoice, items, settings
                     <View style={styles.addrCard}>
                         <Text style={styles.addrHeader}>Billed To</Text>
                         <View style={styles.addrBody}>
-                            <Text style={styles.strongName}>{invoice.client?.name || 'Walk-in Customer'}</Text>
+                            <Text style={styles.strongName}>{invoice.clientName || invoice.client?.name || 'Walk-in Customer'}</Text>
                             <View style={styles.addrRow}>
                                 <Text style={styles.addrLabel}>Client ID:</Text>
-                                <Text style={styles.td}>{invoice.client?.id}</Text>
+                                <Text style={styles.td}>{invoice.clientId || invoice.client?.id || '-'}</Text>
                             </View>
-                            {invoice.client?.address && (
+                            {(invoice.clientAddress || invoice.client?.address) && (
                                 <View style={styles.addrRow}>
                                     <Text style={styles.addrLabel}>Address:</Text>
-                                    <Text style={[styles.td, { flex: 1 }]}>{invoice.client.address}</Text>
+                                    <Text style={[styles.td, { flex: 1 }]}>{invoice.clientAddress || invoice.client?.address}</Text>
+                                </View>
+                            )}
+                            {(invoice.clientPhone || invoice.client?.phone) && (
+                                <View style={styles.addrRow}>
+                                    <Text style={styles.addrLabel}>Phone:</Text>
+                                    <Text style={styles.td}>{invoice.clientPhone || invoice.client?.phone}</Text>
                                 </View>
                             )}
                         </View>

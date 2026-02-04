@@ -24,24 +24,31 @@ export const EstimatePdf: React.FC<EstimatePdfProps> = ({ estimate, items, setti
         ];
 
         try {
-            const cols = settings.customColumns ? JSON.parse(settings.customColumns) : [];
+            if (!settings.customColumns || settings.customColumns === '[]') return standardCols;
+
+            const cols = JSON.parse(settings.customColumns);
             if (cols.length > 0) {
                 const hasProduct = cols.some((c: any) => c.id === 'product');
-                if (!hasProduct) {
-                    // Insert custom columns logic similar to invoice
-                    const customWidth = 20;
-                    const prodWidth = 30;
 
-                    const std = [
-                        { id: 'product', name: 'Item', isBuiltIn: true, width: `${prodWidth}%` },
-                        ...cols.map((c: any) => ({ ...c, width: `${customWidth}%`, align: 'left' })),
-                        { id: 'quantity', name: 'Qty', isBuiltIn: true, width: '10%', align: 'center' },
-                        { id: 'price', name: 'Rate', isBuiltIn: true, width: '15%', align: 'right' },
-                        { id: 'total', name: 'Amount', isBuiltIn: true, width: '15%', align: 'right' }
+                const wQty = 10;
+                const wPrice = 15;
+                const wTotal = 15;
+                const wProduct = 30;
+
+                if (!hasProduct) {
+                    const availableForCustom = 100 - (wProduct + wQty + wPrice + wTotal);
+                    const customColWidth = Math.max(10, availableForCustom / cols.length);
+
+                    return [
+                        { id: 'product', name: 'Item', isBuiltIn: true, width: `${wProduct}%` },
+                        ...cols.map((c: any) => ({ ...c, width: `${customColWidth}%`, align: 'left' })),
+                        { id: 'quantity', name: 'Qty', isBuiltIn: true, width: `${wQty}%`, align: 'center' },
+                        { id: 'price', name: 'Rate', isBuiltIn: true, width: `${wPrice}%`, align: 'right' },
+                        { id: 'total', name: 'Amount', isBuiltIn: true, width: `${wTotal}%`, align: 'right' }
                     ];
-                    return std;
+                } else {
+                    return cols.map((c: any) => ({ ...c, width: c.width || `${100 / cols.length}%`, align: c.align || 'left' }));
                 }
-                return cols;
             }
         } catch { }
         return standardCols;

@@ -11,21 +11,31 @@ import { NgSelectModule } from '@ng-select/ng-select';
   template: `
     <div class="max-w-6xl mx-auto animate-fade-in space-y-4 pb-12">
       <!-- Page Header -->
-      <div class="flex items-center justify-between border-b border-slate-200 pb-4 mb-2">
+      <div class="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-4 py-3 shadow-sm mb-3">
         <div class="flex items-center gap-3">
-          <h2 class="text-xl font-display font-bold text-slate-900">System Settings</h2>
-          <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-widest border border-slate-200">
-            Configuration
-          </span>
+          <div class="w-9 h-9 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center text-primary-600">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l.7 2.147a1 1 0 0 0 .95.69h2.262c.969 0 1.371 1.24.588 1.81l-1.833 1.333a1 1 0 0 0-.364 1.118l.7 2.147c.3.921-.755 1.688-1.54 1.118l-1.833-1.333a1 1 0 0 0-1.175 0L9.262 13.99c-.784.57-1.838-.197-1.539-1.118l.7-2.147a1 1 0 0 0-.364-1.118L6.226 7.574c-.783-.57-.38-1.81.588-1.81h2.262a1 1 0 0 0 .95-.69l.7-2.147z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-display font-bold text-slate-900">System Settings</h2>
+            <p class="text-[11px] text-slate-500 mt-0.5">
+              Control company identity, invoice layout and behaviour used across all documents.
+            </p>
+          </div>
         </div>
 
         <div class="flex items-center gap-3">
-          <div *ngIf="successMessage()" class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded border border-emerald-100 text-[11px] font-bold animate-fade-in">
+          <div *ngIf="successMessage()" class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 text-[11px] font-bold animate-fade-in">
               <svg class="w-3 h-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
               Changes Saved
           </div>
+          <span class="hidden md:inline-flex px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-widest border border-slate-200">
+            Configuration
+          </span>
           <button (click)="saveSettings()" [disabled]="saving()"
-            class="px-5 py-2 bg-primary-600 text-white rounded text-xs font-bold hover:bg-primary-700 shadow-sm flex items-center gap-2 disabled:opacity-50">
+            class="px-5 py-2 bg-primary-600 text-white rounded-full text-[11px] font-bold uppercase hover:bg-primary-700 shadow-sm flex items-center gap-2 disabled:opacity-60">
             <span *ngIf="saving()" class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
              {{ saving() ? 'SAVING...' : 'SAVE SETTINGS' }}
           </button>

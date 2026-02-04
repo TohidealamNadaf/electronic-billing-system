@@ -1,0 +1,326 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --est-primary: #6366f1;
+    /* Indigo 500 */
+    --est-accent: #a5b4fc;
+    /* Indigo 300 */
+    --est-text: #020617;
+    --est-text-light: #475569;
+    --est-border: #e2e8f0;
+    --est-bg-light: #f5f3ff;
+    /* Violet 50 */
+    --est-bg-header: #ede9fe;
+    /* Violet 100 */
+    --font-main: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Global resets for Print handled in PrintInvoice.css largely, but ensure specific scoping */
+@media print {
+    .est-print-wrapper {
+        background: white !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+
+    .est-print-container {
+        width: 100% !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        min-height: auto !important;
+        padding: 0 !important;
+    }
+
+    .est-footer {
+        position: static !important;
+        margin-top: 15mm !important;
+    }
+}
+
+.est-print-wrapper {
+    background: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    font-family: var(--font-main);
+}
+
+.est-print-container {
+    background: white;
+    width: 210mm;
+    /* Removed min-height to let content flow naturally */
+    padding: 15mm;
+    color: var(--est-text);
+    position: relative;
+    /* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); */
+}
+
+.est-header-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3mm;
+    border-bottom: 2px solid var(--est-primary);
+    padding-bottom: 3mm;
+}
+
+.est-company-name {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--est-primary);
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+}
+
+.est-company-tagline {
+    font-size: 11px;
+    color: var(--est-text-light);
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+.est-info-bar {
+    width: 100%;
+    background: var(--est-bg-header);
+    padding: 3mm 4mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    margin-bottom: 8mm;
+    border: 1px solid var(--est-border);
+}
+
+.est-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.est-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--est-text-light);
+    margin-bottom: 2px;
+}
+
+.est-value {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--est-text);
+}
+
+.est-address-section {
+    width: 100%;
+    margin-bottom: 8mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px dashed var(--est-border);
+    padding-bottom: 4mm;
+}
+
+.est-addr-box {
+    width: 45%;
+}
+
+.est-box-header {
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--est-text-light);
+    margin-bottom: 2mm;
+    display: block;
+}
+
+.est-addr-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    color: var(--est-text);
+    text-transform: capitalize;
+}
+
+.est-addr-text {
+    font-size: 11px;
+    color: var(--est-text-light);
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.est-text-right {
+    text-align: right;
+}
+
+.est-text-left {
+    text-align: left !important;
+}
+
+.est-text-center {
+    text-align: center !important;
+}
+
+.est-table-section {
+    width: 100%;
+    margin-bottom: 8mm;
+}
+
+.est-data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 11px;
+    table-layout: fixed;
+}
+
+.est-data-table th {
+    padding: 3mm 2mm;
+    background: var(--est-bg-header);
+    color: var(--est-primary);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 10px;
+    border-bottom: 2px solid var(--est-primary);
+    text-align: left;
+}
+
+.est-data-table td {
+    padding: 3mm 2mm;
+    border-bottom: 1px solid var(--est-border);
+    vertical-align: middle;
+    color: var(--est-text);
+}
+
+.est-odd td {
+    background: var(--est-bg-light);
+}
+
+.est-col-desc {
+    width: auto !important;
+}
+
+.est-col-qty {
+    width: 8% !important;
+}
+
+.est-col-price {
+    width: 12% !important;
+}
+
+.est-col-total {
+    width: 15% !important;
+}
+
+.est-item-title {
+    font-weight: 700;
+}
+
+.est-font-bold {
+    font-weight: 700;
+}
+
+.est-totals-container {
+    width: 100%;
+    display: flex;
+    gap: 10mm;
+    margin-bottom: 15mm;
+    align-items: flex-start;
+}
+
+.est-notes-section {
+    flex: 1;
+    padding-right: 10mm;
+}
+
+.est-terms-title {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 2mm;
+    color: var(--est-primary);
+}
+
+.est-terms-text {
+    font-size: 10px;
+    color: var(--est-text-light);
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.est-totals-table {
+    width: 85mm;
+    background: var(--est-bg-light);
+    padding: 4mm;
+    border-radius: 6px;
+    border: 1px solid var(--est-border);
+}
+
+.est-t-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.5mm 0;
+    font-size: 11px;
+}
+
+.est-t-row:not(:last-child) {
+    border-bottom: 1px dashed var(--est-border);
+}
+
+.est-t-row .est-label {
+    color: var(--est-text-light);
+    font-weight: 600;
+}
+
+.est-t-row .est-val {
+    font-weight: 700;
+}
+
+.est-grand-total {
+    background: var(--est-primary);
+    color: white;
+    padding: 2.5mm 3mm;
+    margin: 2mm 0;
+    border-radius: 4px;
+}
+
+.est-grand-total .est-label {
+    color: white;
+}
+
+.est-status-pill {
+    margin-top: 2mm;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1.5mm;
+    border: 1px solid var(--est-border);
+    border-radius: 4px;
+}
+
+.est-status-pill.est-info {
+    color: var(--est-primary);
+    background: white;
+    border-color: var(--est-primary);
+}
+
+.est-footer {
+    margin-top: 10mm;
+    text-align: center;
+}
+
+.est-footer-line {
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--est-primary), transparent);
+    margin-bottom: 2mm;
+    opacity: 0.3;
+}
+
+.est-footer-text {
+    font-size: 9px;
+    color: var(--est-text-light);
+}

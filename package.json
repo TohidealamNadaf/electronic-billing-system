@@ -9,5 +9,16 @@
         "build:all": "npm run build:backend && npm run build:frontend",
         "pack": "npm run build:all && cd electron && npm run dist",
         "dist": "npm run build:all && cd electron && npm run dist"
+    },
+    "dependencies": {
+        "@capacitor-community/sqlite": "^8.0.0",
+        "@capacitor/android": "^8.0.2",
+        "@capacitor/cli": "^8.0.2",
+        "@capacitor/core": "^8.0.2",
+        "clsx": "^2.1.1",
+        "jeep-sqlite": "^2.8.0",
+        "lucide-react": "^0.563.0",
+        "react-router-dom": "^7.13.0",
+        "tailwind-merge": "^3.4.0"
     }
 }

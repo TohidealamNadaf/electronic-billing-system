@@ -1,0 +1,475 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --c-primary: #059669;
+    /* Emerald 600 */
+    --c-primary-dark: #047857;
+    /* Emerald 700 */
+    --c-primary-light: #d1fae5;
+    /* Emerald 100 */
+    --c-text: #1e293b;
+    /* Slate 800 */
+    --c-text-muted: #64748b;
+    /* Slate 500 */
+    --c-border: #e2e8f0;
+    /* Slate 200 */
+    --c-bg: #f8fafc;
+    /* Slate 50 */
+    --font-base: 'Inter', sans-serif;
+
+    /* Force colors globally */
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* --- Global Print Resets --- */
+@media print {
+
+    body,
+    html {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: white !important;
+    }
+
+    #root>* {
+        display: none !important;
+    }
+
+    #print-section {
+        display: block !important;
+    }
+
+    .print-wrapper {
+        background: white !important;
+        padding: 0 !important;
+        display: block !important;
+        margin: 0 !important;
+    }
+
+    .print-container {
+        width: 100% !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        min-height: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    /* CRITICAL: Force Background Graphics & Colors */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+/* Layout */
+.print-wrapper {
+    background: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    font-family: var(--font-base);
+    color: var(--c-text);
+}
+
+.print-container {
+    background: white;
+    width: 210mm;
+    /* Removed min-height to let content flow naturally */
+    padding: 12mm;
+    position: relative;
+    /* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 4mm;
+    border-bottom: 2px solid var(--c-primary);
+    margin-bottom: 4mm;
+}
+
+.company-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--c-primary-dark);
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.company-tagline {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--c-text-muted);
+    margin-top: 2px;
+}
+
+.invoice-badge {
+    background: var(--c-primary-light);
+    color: var(--c-primary-dark);
+    padding: 2mm 5mm;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* Meta Bar */
+.meta-bar {
+    display: flex;
+    justify-content: space-between;
+    background: var(--c-bg);
+    padding: 3mm 4mm;
+    border-radius: 6px;
+    margin-bottom: 6mm;
+    border: 1px solid var(--c-border);
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-item .label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--c-text-muted);
+    font-weight: 600;
+}
+
+.meta-item .value {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--c-text);
+}
+
+.font-mono {
+    font-family: monospace;
+    letter-spacing: -0.5px;
+}
+
+/* Addresses */
+.address-grid {
+    display: flex;
+    gap: 6mm;
+    margin-bottom: 6mm;
+}
+
+.addr-card {
+    flex: 1;
+    border: 1px solid var(--c-border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.addr-header {
+    background: var(--c-bg);
+    padding: 2mm 3mm;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--c-text-muted);
+    border-bottom: 1px solid var(--c-border);
+}
+
+.addr-body {
+    padding: 3mm;
+}
+
+.strong-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 1mm;
+}
+
+.addr-row {
+    font-size: 11.5px;
+    line-height: 1.4;
+    display: flex;
+    gap: 2mm;
+}
+
+.addr-label {
+    color: var(--c-text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.addr-val {
+    color: var(--c-text);
+}
+
+/* Items Table */
+.table-container {
+    margin-bottom: 6mm;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.data-table th {
+    background: var(--c-primary);
+    color: white;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2.5mm 2mm;
+    /* Compact Header */
+    text-align: left;
+}
+
+.data-table th:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.data-table th:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.data-table td {
+    font-size: 11.5px;
+    /* Use 10px for readability in compact view */
+    padding: 2mm 2mm;
+    /* Compact Rows to fit 15+ */
+    border-bottom: 1px solid var(--c-border);
+    vertical-align: top;
+    color: var(--c-text);
+}
+
+.stripe {
+    background: #fcfcfc;
+}
+
+.col-desc {
+    width: auto !important;
+}
+
+.col-qty {
+    width: 8% !important;
+}
+
+.col-price {
+    width: 15% !important;
+}
+
+.col-total {
+    width: 15% !important;
+    font-weight: 800 !important;
+}
+
+.col-custom {
+    width: 12% !important;
+}
+
+
+.item-main {
+    font-weight: 600;
+    margin-bottom: 1px;
+}
+
+.item-sub {
+    font-size: 10px;
+    color: var(--c-text-muted);
+    line-height: 1.2;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+/* Footer Grid */
+.footer-grid {
+    display: flex;
+    gap: 8mm;
+    margin-bottom: 4mm;
+    page-break-inside: avoid;
+}
+
+.notes-panel {
+    flex: 1;
+}
+
+.panel-header {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--c-primary-dark);
+    margin-bottom: 1mm;
+}
+
+.panel-body {
+    font-size: 11px;
+    color: var(--c-text-muted);
+    white-space: pre-wrap;
+    line-height: 1.4;
+    border-left: 2px solid var(--c-border);
+    padding-left: 2mm;
+}
+
+.history-block {
+    border: 1px solid var(--c-border);
+    padding: 2mm;
+    border-radius: 4px;
+    margin-top: 2mm;
+    width: 60%;
+}
+
+.hist-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--c-text-muted);
+    margin-bottom: 1px;
+}
+
+.totals-panel {
+    width: 70mm;
+    background: var(--c-bg);
+    padding: 3mm;
+    border-radius: 6px;
+    border: 1px solid var(--c-border);
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 1mm 0;
+    font-size: 11.5px;
+}
+
+.total-row .label {
+    color: var(--c-text-muted);
+    font-weight: 600;
+}
+
+.total-row .val {
+    font-weight: 700;
+}
+
+.total-row.discount {
+    color: #dc2626;
+}
+
+.grand-total-box {
+    margin: 2mm 0;
+    background: var(--c-primary);
+    color: white;
+    padding: 2mm;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grand-total-box .label {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.grand-total-box .val {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.summary-divider {
+    margin: 2mm 0;
+    border-top: 1px dashed var(--c-border);
+}
+
+.total-row.summary .val.warning {
+    color: #dc2626;
+}
+
+.status-badge {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-top: 2mm;
+    padding: 1mm;
+    border: 1px solid var(--c-border);
+    background: white;
+    border-radius: 3px;
+}
+
+.status-badge.paid {
+    color: #166534;
+    background: #dcfce7;
+    border-color: #86efac;
+}
+
+/* Page Footer */
+.page-footer {
+    margin-top: 8mm;
+    /* Fixed spacing instead of auto */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4mm;
+}
+
+.footer-sign {
+    width: 40mm;
+    border-top: 1px solid var(--c-text-muted);
+    text-align: center;
+    font-size: 9px;
+    padding-top: 1mm;
+    margin-left: auto;
+}
+
+.footer-info {
+    font-size: 9px;
+    color: var(--c-text-muted);
+    border-top: 1px solid var(--c-border);
+    width: 100%;
+    text-align: center;
+    padding-top: 2mm;
+}
+
+.loading-state {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.error-msg {
+    background: #ef4444;
+    padding: 1rem;
+    border-radius: 4px;
+}

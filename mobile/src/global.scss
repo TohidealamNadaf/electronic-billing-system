@@ -44,7 +44,7 @@
     :root {
         --font-sans: 'Inter', sans-serif;
         --font-display: 'Outfit', sans-serif;
-    
+
         --color-primary-50: #ecfdf5;
         --color-primary-100: #d1fae5;
         --color-primary-500: #10b981;
@@ -52,7 +52,7 @@
         --color-primary-700: #047857;
         --color-primary-800: #065f46;
         --color-primary-900: #064e3b;
-    
+
         --color-slate-850: #1e293b;
     }
 }
@@ -92,4 +92,90 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: #94a3b8;
+}
+
+/* 
+ * Global ng-select Overrides 
+ * Ensures visibility in both Light and Dark modes
+ */
+.ng-select .ng-select-container {
+    background-color: #fff !important;
+    color: #333 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.ng-select .ng-value-container .ng-value {
+    color: #333 !important;
+}
+
+.ng-select .ng-value-label {
+    color: #333 !important;
+    font-weight: 500;
+}
+
+.ng-select .ng-input>input {
+    color: #333 !important;
+}
+
+.ng-select .ng-arrow-wrapper .ng-arrow {
+    border-color: #333 transparent transparent transparent !important;
+}
+
+.ng-select .ng-clear-wrapper {
+    color: #333 !important;
+}
+
+/* Dark Mode Overrides */
+@media (prefers-color-scheme: dark) {
+    .ng-select .ng-select-container {
+        background-color: #1e293b !important;
+        /* Slate 800 */
+        color: #f8fafc !important;
+        /* Slate 50 */
+        border-color: #334155 !important;
+        /* Slate 700 */
+    }
+
+    .ng-select .ng-value-container .ng-value {
+        color: #f8fafc !important;
+    }
+
+    .ng-select .ng-value-label {
+        color: #f8fafc !important;
+    }
+
+    .ng-select .ng-input>input {
+        color: #f8fafc !important;
+    }
+
+    .ng-select .ng-arrow-wrapper .ng-arrow {
+        border-color: #f8fafc transparent transparent transparent !important;
+    }
+
+    .ng-select .ng-clear-wrapper {
+        color: #f8fafc !important;
+    }
+
+    /* Dropdown Panel in Dark Mode */
+    .ng-dropdown-panel {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+    }
+
+    .ng-dropdown-panel .ng-option {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+    }
+
+    .ng-dropdown-panel .ng-option:hover,
+    .ng-dropdown-panel .ng-option.ng-option-marked {
+        background-color: #334155 !important;
+        color: #fff !important;
+    }
+
+    .ng-dropdown-panel .ng-option.ng-option-selected {
+        background-color: #3b82f6 !important;
+        /* Blue 500 */
+        color: #fff !important;
+    }
 }

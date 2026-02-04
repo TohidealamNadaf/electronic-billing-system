@@ -29,7 +29,10 @@ export function MobileShell({ children }: { children: ReactNode }) {
     }
 
     return (
-        <div className="flex flex-col min-h-[100dvh] max-w-md mx-auto bg-background shadow-lg overflow-hidden relative">
+        <div
+            className="flex flex-col min-h-[100dvh] max-w-md mx-auto bg-background shadow-lg overflow-hidden relative"
+            style={{ paddingTop: 'max(env(safe-area-inset-top), 35px)' }}
+        >
             <main className="flex-1 pb-16 overflow-y-auto w-full">
                 {children}
             </main>

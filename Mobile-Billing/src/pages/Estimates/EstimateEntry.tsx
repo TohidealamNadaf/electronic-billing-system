@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, Save, Trash, Plus, Minus, FileCheck } from "lucide-react"
+import { ArrowLeft, Save, Trash, Plus, Minus, FileCheck, Share2, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { useDatabase } from "@/DatabaseContext"
+import { useSettings } from "@/hooks/useSettings"
 import { ClientSelector } from "@/components/client-selector"
 import { ProductSelector } from "@/components/product-selector"
 import { usePdfGenerator } from "@/hooks/usePdfGenerator"
-import { Share2 } from "lucide-react"
+import { EstimatePdf } from "@/pdf/EstimatePdf"
+import { handlePdfAction } from "@/pdf/pdfUtils"
 // import { cn } from "@/lib/utils"
 // import { cn } from "@/lib/utils"
 
@@ -29,6 +31,8 @@ export function EstimateEntry() {
     const { id } = useParams()
     const isNew = !id
 
+    const [items, itemsSet] = useState<LineItem[]>([])
+    const { settings } = useSettings()
     const [loading, setLoading] = useState(false)
     const [selectingClient, setSelectingClient] = useState(false)
     const [addingProduct, setAddingProduct] = useState(false)
@@ -45,7 +49,7 @@ export function EstimateEntry() {
         total: 0
     })
 
-    const [items, itemsSet] = useState<LineItem[]>([])
+
 
     useEffect(() => {
         if (isNew) {
@@ -447,7 +451,15 @@ export function EstimateEntry() {
                 </div>
             </div>
 
-            <div className="p-4 border-t bg-card safe-area-bottom">
+            <div className="p-4 border-t bg-card safe-area-bottom space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" onClick={() => handlePdfAction(<EstimatePdf estimate={formData} items={items} settings={settings} />, `Estimate-${formData.estimateNumber}`, 'open')}>
+                        <Eye className="w-4 h-4 mr-2" /> View PDF
+                    </Button>
+                    <Button variant="outline" onClick={() => handlePdfAction(<EstimatePdf estimate={formData} items={items} settings={settings} />, `Estimate-${formData.estimateNumber}`, 'share')}>
+                        <Share2 className="w-4 h-4 mr-2" /> Share
+                    </Button>
+                </div>
                 <Button className="w-full" onClick={handleSave} disabled={loading}>
                     {loading ? "Saving..." : <><Save className="w-4 h-4 mr-2" /> Save Estimate</>}
                 </Button>

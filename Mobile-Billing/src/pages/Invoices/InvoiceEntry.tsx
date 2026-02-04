@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, Save, Trash, Plus, Minus, Share2 } from "lucide-react"
+import { ArrowLeft, Save, Share2, Eye, Trash, Plus, Minus } from "lucide-react"
+import { InvoicePdf } from "@/pdf/InvoicePdf"
+import { handlePdfAction } from "@/pdf/pdfUtils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { useDatabase } from "@/DatabaseContext"
+import { useSettings } from "@/hooks/useSettings"
 import { ClientSelector } from "@/components/client-selector"
 import { ProductSelector } from "@/components/product-selector"
 import { usePdfGenerator } from "@/hooks/usePdfGenerator"
@@ -26,11 +29,12 @@ export function InvoiceEntry() {
     const { db, save } = useDatabase()
     const navigate = useNavigate()
     const { id } = useParams()
-    const isNew = !id
-
+    const [items, itemsSet] = useState<LineItem[]>([])
+    const { settings } = useSettings()
     const [loading, setLoading] = useState(false)
     const [selectingClient, setSelectingClient] = useState(false)
     const [addingProduct, setAddingProduct] = useState(false)
+    const isNew = !id
 
     const [formData, setFormData] = useState({
         invoiceNumber: "",
@@ -44,7 +48,7 @@ export function InvoiceEntry() {
         total: 0
     })
 
-    const [items, itemsSet] = useState<LineItem[]>([])
+
 
     useEffect(() => {
         if (isNew) {
@@ -418,7 +422,15 @@ export function InvoiceEntry() {
                 </div>
             </div>
 
-            <div className="p-4 border-t bg-card safe-area-bottom">
+            <div className="p-4 border-t bg-card safe-area-bottom space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" onClick={() => handlePdfAction(<InvoicePdf invoice={formData} items={items} settings={settings} />, `Invoice-${formData.invoiceNumber}`, 'open')}>
+                        <Eye className="w-4 h-4 mr-2" /> View PDF
+                    </Button>
+                    <Button variant="outline" onClick={() => handlePdfAction(<InvoicePdf invoice={formData} items={items} settings={settings} />, `Invoice-${formData.invoiceNumber}`, 'share')}>
+                        <Share2 className="w-4 h-4 mr-2" /> Share
+                    </Button>
+                </div>
                 <Button className="w-full" onClick={handleSave} disabled={loading}>
                     {loading ? "Saving..." : <><Save className="w-4 h-4 mr-2" /> Save Invoice</>}
                 </Button>

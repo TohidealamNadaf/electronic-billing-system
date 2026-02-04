@@ -71,6 +71,7 @@ export function SettingsPage() {
     })
 
     // --- Initialization ---
+    // --- Initialization ---
     useEffect(() => {
         if (!settings) return
 
@@ -147,42 +148,46 @@ export function SettingsPage() {
 
     const handleSave = async () => {
         setSaving(true)
+        try {
+            // Update values in displayFields for built-ins if needed
+            // (Actually they are bound directly in state, so businessConfig matches UI)
 
-        // Update values in displayFields for built-ins if needed
-        // (Actually they are bound directly in state, so businessConfig matches UI)
+            // Sync root vars from fields
+            const addrField = businessConfig.displayFields.find(f => f.id === 'address')
+            const phoneField = businessConfig.displayFields.find(f => f.id === 'phone')
+            const gstField = businessConfig.displayFields.find(f => f.id === 'gst')
 
-        // Sync root vars from fields
-        const addrField = businessConfig.displayFields.find(f => f.id === 'address')
-        const phoneField = businessConfig.displayFields.find(f => f.id === 'phone')
-        const gstField = businessConfig.displayFields.find(f => f.id === 'gst')
+            const finalConfig = {
+                ...businessConfig,
+                showAddress: addrField?.show ?? true,
+                showContact: phoneField?.show ?? true,
+                showGst: gstField?.show ?? true
+            }
 
-        const finalConfig = {
-            ...businessConfig,
-            showAddress: addrField?.show ?? true,
-            showContact: phoneField?.show ?? true,
-            showGst: gstField?.show ?? true
+            const payload = {
+                companyName,
+                companyOwner,
+                companyAddress: addrField?.value || "",
+                companyPhone: phoneField?.value || "",
+                gstNumber: gstField?.value || "",
+                gstRate,
+                isGstEnabled: String(isGstEnabled),
+                isDiscountEnabled: String(isDiscountEnabled),
+                showTerms: String(showTerms),
+                termAndConditions: terms,
+                businessProfileConfig: JSON.stringify(finalConfig),
+                customColumns: JSON.stringify(customColumns),
+                columnLabels: JSON.stringify(columnLabels)
+            }
+
+            await updateSettings(payload)
+            setSuccessMsg(true)
+            setTimeout(() => setSuccessMsg(false), 2000)
+        } catch (error) {
+            console.error("Failed to save settings", error);
+        } finally {
+            setSaving(false)
         }
-
-        const payload = {
-            companyName,
-            companyOwner,
-            companyAddress: addrField?.value || "",
-            companyPhone: phoneField?.value || "",
-            gstNumber: gstField?.value || "",
-            gstRate,
-            isGstEnabled: String(isGstEnabled),
-            isDiscountEnabled: String(isDiscountEnabled),
-            showTerms: String(showTerms),
-            termAndConditions: terms,
-            businessProfileConfig: JSON.stringify(finalConfig),
-            customColumns: JSON.stringify(customColumns),
-            columnLabels: JSON.stringify(columnLabels)
-        }
-
-        await updateSettings(payload)
-        setSaving(false)
-        setSuccessMsg(true)
-        setTimeout(() => setSuccessMsg(false), 2000)
     }
 
     // --- Renderers ---

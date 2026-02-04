@@ -155,6 +155,23 @@ export function InvoiceEntry() {
             // Parse Custom Columns
             try {
                 let cols = settingsMap.customColumns ? JSON.parse(settingsMap.customColumns) : []
+                if (cols.length > 0) {
+                    // Logic: If editing (!isNew), check if these columns are actually used.
+                    // If NO items have data for them, do NOT show them.
+                    if (!isNew && id) {
+                        const itemCheck = await db.query("SELECT customValues FROM invoice_items WHERE invoiceId = ?", [id]);
+                        if (itemCheck.values) {
+                            const hasUsage = itemCheck.values.some((row: any) => {
+                                const vals = row.customValues ? JSON.parse(row.customValues) : {};
+                                return Object.keys(vals).length > 0;
+                            });
+                            if (!hasUsage) {
+                                cols = []; // Revert to standard
+                            }
+                        }
+                    }
+                }
+
                 // Normalize new vs old format if needed, similar to desktop
                 if (cols.length === 0) {
                     cols = [

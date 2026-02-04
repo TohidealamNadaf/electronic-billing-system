@@ -237,6 +237,15 @@ export function EstimateEntry() {
         }))
     }
 
+    const updatePrice = (itemId: string, newPrice: number) => {
+        itemsSet(items.map(item => {
+            if (item.id === itemId) {
+                return { ...item, price: newPrice, total: item.quantity * newPrice }
+            }
+            return item
+        }))
+    }
+
     const evaluateFormula = (formula: string, item: LineItem): number => {
         try {
             const clean = formula.replace(/price/g, String(item.price)).replace(/qty/g, String(item.quantity)).replace(/[^0-9+\-*/().]/g, '')
@@ -371,7 +380,16 @@ export function EstimateEntry() {
                                             <span className="font-semibold text-sm">₹{item.total.toFixed(2)}</span>
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-xs text-muted-foreground">₹{item.price}/unit</span>
+                                            <div className="flex flex-col">
+                                                <input
+                                                    type="number"
+                                                    className="w-20 bg-muted/50 border rounded px-1.5 py-1 text-xs"
+                                                    value={item.price}
+                                                    onChange={(e) => updatePrice(item.id, Number(e.target.value))}
+                                                    placeholder="Rate"
+                                                />
+                                                <span className="text-[10px] text-muted-foreground">/rate</span>
+                                            </div>
                                             <div className="flex items-center bg-muted rounded-md">
                                                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.id, -1)}>
                                                     <Minus className="w-3 h-3" />

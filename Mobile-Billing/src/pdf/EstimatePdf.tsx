@@ -140,11 +140,36 @@ export const EstimatePdf: React.FC<EstimatePdfProps> = ({ estimate, items, setti
                     <View style={styles.addrCard}>
                         <Text style={styles.addrHeader}>From</Text>
                         <View style={styles.addrBody}>
-                            <Text style={styles.strongName}>{settings?.companyName}</Text>
-                            <View style={styles.addrRow}>
-                                <Text style={styles.addrLabel}>Phone:</Text>
-                                <Text style={styles.td}>{settings?.companyPhone}</Text>
-                            </View>
+                            {(function () {
+                                const config = settings.businessProfileConfig ? JSON.parse(settings.businessProfileConfig) : {};
+                                const showName = config.showName !== false;
+                                const displayType = config.nameDisplayType || 'company';
+                                const displayName = displayType === 'owner' ? settings.companyOwner : settings.companyName;
+
+                                return (
+                                    <>
+                                        {showName && <Text style={styles.strongName}>{displayName}</Text>}
+                                        {config.displayFields && config.displayFields.map((field: any, i: number) => {
+                                            if (!field.show) return null;
+                                            return (
+                                                <View key={i} style={styles.addrRow}>
+                                                    <Text style={styles.addrLabel}>{field.key}:</Text>
+                                                    <Text style={[styles.td, { flex: 1 }]}>{field.value}</Text>
+                                                </View>
+                                            );
+                                        })}
+                                        {/* Fallback */}
+                                        {(!config.displayFields || config.displayFields.length === 0) && (
+                                            <>
+                                                <View style={styles.addrRow}>
+                                                    <Text style={styles.addrLabel}>Phone:</Text>
+                                                    <Text style={styles.td}>{settings?.companyPhone}</Text>
+                                                </View>
+                                            </>
+                                        )}
+                                    </>
+                                );
+                            })()}
                         </View>
                     </View>
                     <View style={styles.addrCard}>
@@ -171,7 +196,7 @@ export const EstimatePdf: React.FC<EstimatePdfProps> = ({ estimate, items, setti
                     {items.map((item, i) => (
                         <View key={i} style={[styles.tableRow, { backgroundColor: i % 2 === 0 ? 'white' : '#f5f3ff' }]}>
                             {columns.map((col: any, j: number) => (
-                                <Text key={j} style={[styles.td, { width: col.width, textAlign: getColumnAlign(col) }]}>
+                                <Text key={j} style={[col.id === 'total' ? styles.tdBold : styles.td, { width: col.width, textAlign: getColumnAlign(col) }]}>
                                     {getColValue(col, item)}
                                 </Text>
                             ))}
@@ -198,7 +223,7 @@ export const EstimatePdf: React.FC<EstimatePdfProps> = ({ estimate, items, setti
                         )}
                         <View style={[styles.grandTotal, { backgroundColor: '#6366f1' }]}>
                             <Text style={styles.grandTotalLabel}>Estimated Total</Text>
-                            <Text style={styles.grandTotalVal}>Rs. {total.toFixed(2)}</Text>
+                            <Text style={styles.grandTotalVal}>₹ {total.toFixed(2)}</Text>
                         </View>
                         <Text style={{ fontSize: 9, textAlign: 'center', marginTop: 10, color: '#6366f1', borderWidth: 1, borderColor: '#6366f1', padding: 4, borderRadius: 4 }}>
                             PROVISIONAL QUOTATION

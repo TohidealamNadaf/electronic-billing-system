@@ -156,19 +156,44 @@ export const InvoicePdf: React.FC<InvoicePdfProps> = ({ invoice, items, settings
                     <View style={styles.addrCard}>
                         <Text style={styles.addrHeader}>Invoiced By</Text>
                         <View style={styles.addrBody}>
-                            <Text style={styles.strongName}>{settings?.companyName}</Text>
-                            <View style={styles.addrRow}>
-                                <Text style={styles.addrLabel}>Address:</Text>
-                                <Text style={[styles.td, { flex: 1 }]}>{settings?.companyAddress}</Text>
-                            </View>
-                            <View style={styles.addrRow}>
-                                <Text style={styles.addrLabel}>Phone:</Text>
-                                <Text style={styles.td}>{settings?.companyPhone}</Text>
-                            </View>
-                            <View style={styles.addrRow}>
-                                <Text style={styles.addrLabel}>Email:</Text>
-                                <Text style={styles.td}>{settings?.companyEmail}</Text>
-                            </View>
+                            {(function () {
+                                const config = settings.businessProfileConfig ? JSON.parse(settings.businessProfileConfig) : {};
+                                const showName = config.showName !== false;
+                                const displayType = config.nameDisplayType || 'company';
+                                const displayName = displayType === 'owner' ? settings.companyOwner : settings.companyName;
+
+                                return (
+                                    <>
+                                        {showName && <Text style={styles.strongName}>{displayName}</Text>}
+                                        {config.displayFields && config.displayFields.map((field: any, i: number) => {
+                                            if (!field.show) return null;
+                                            return (
+                                                <View key={i} style={styles.addrRow}>
+                                                    <Text style={styles.addrLabel}>{field.key}:</Text>
+                                                    <Text style={[styles.td, { flex: 1 }]}>{field.value}</Text>
+                                                </View>
+                                            );
+                                        })}
+                                        {/* Fallback if config is missing but legacy fields exist */}
+                                        {(!config.displayFields || config.displayFields.length === 0) && (
+                                            <>
+                                                <View style={styles.addrRow}>
+                                                    <Text style={styles.addrLabel}>Address:</Text>
+                                                    <Text style={[styles.td, { flex: 1 }]}>{settings?.companyAddress}</Text>
+                                                </View>
+                                                <View style={styles.addrRow}>
+                                                    <Text style={styles.addrLabel}>Phone:</Text>
+                                                    <Text style={styles.td}>{settings?.companyPhone}</Text>
+                                                </View>
+                                                <View style={styles.addrRow}>
+                                                    <Text style={styles.addrLabel}>Email:</Text>
+                                                    <Text style={styles.td}>{settings?.companyEmail}</Text>
+                                                </View>
+                                            </>
+                                        )}
+                                    </>
+                                );
+                            })()}
                         </View>
                     </View>
 
@@ -209,7 +234,7 @@ export const InvoicePdf: React.FC<InvoicePdfProps> = ({ invoice, items, settings
                     {items.map((item, i) => (
                         <View key={i} style={[styles.tableRow, { backgroundColor: i % 2 === 0 ? 'white' : '#f8fafc' }]}>
                             {columns.map((col: any, j: number) => (
-                                <Text key={j} style={[styles.td, { width: col.width, textAlign: getColumnAlign(col) }]}>
+                                <Text key={j} style={[col.id === 'total' ? styles.tdBold : styles.td, { width: col.width, textAlign: getColumnAlign(col) }]}>
                                     {getColValue(col, item)}
                                 </Text>
                             ))}
@@ -248,18 +273,17 @@ export const InvoicePdf: React.FC<InvoicePdfProps> = ({ invoice, items, settings
 
                         <View style={styles.grandTotal}>
                             <Text style={styles.grandTotalLabel}>Total Amount</Text>
-                            {/* Rs. instead of Symbol */}
-                            <Text style={styles.grandTotalVal}>Rs. {total.toFixed(2)}</Text>
+                            <Text style={styles.grandTotalVal}>₹ {total.toFixed(2)}</Text>
                         </View>
                     </View>
                 </View>
 
+                {/* Footer */}
                 <View style={styles.pageFooter}>
-                    <Text style={styles.footerText}>
-                        {settings?.companyName} • {settings?.companyAddress || 'Verified Business'} • Generated on {new Date().toLocaleString()}
-                    </Text>
+                    <Text style={styles.footerText}>{settings?.footerText || 'Thank you for your business!'}</Text>
+                    <Text style={[styles.footerText, { marginTop: 2 }]}>Generated by Electronic Billing System</Text>
                 </View>
             </Page>
-        </Document>
+        </Document >
     );
 };

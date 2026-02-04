@@ -24,10 +24,10 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        paddingBottom: 10,
+        paddingBottom: 5,
         borderBottomWidth: 1.5,
         borderBottomColor: '#059669',
-        marginBottom: 10
+        marginBottom: 5
     },
     companyName: {
         fontSize: 15,
@@ -147,6 +147,11 @@ export const styles = StyleSheet.create({
         fontSize: 8.5,
         color: '#1e293b'
     },
+    tdBold: {
+        fontSize: 8.5,
+        color: '#1e293b',
+        fontWeight: 700
+    },
     itemMain: {
         fontWeight: 600,
         marginBottom: 1
@@ -219,10 +224,7 @@ export const styles = StyleSheet.create({
         color: 'white'
     },
     pageFooter: {
-        position: 'absolute', // Keep absolute for footer
-        bottom: 20,
-        left: 30,
-        right: 30,
+        marginTop: 20,
         borderTopWidth: 0.5,
         borderTopColor: '#e2e8f0',
         paddingTop: 8,

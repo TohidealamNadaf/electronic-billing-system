@@ -39,7 +39,7 @@ export function EstimatesList() {
     )
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount)
     }
 
     return (
@@ -85,8 +85,8 @@ export function EstimatesList() {
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="font-semibold text-sm">{estimate.estimateNumber}</span>
                                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${estimate.status === 'accepted' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                                                estimate.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                                                    'bg-muted text-muted-foreground'
+                                            estimate.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                                'bg-muted text-muted-foreground'
                                             }`}>
                                             {estimate.status}
                                         </span>
